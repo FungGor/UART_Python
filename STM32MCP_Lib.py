@@ -165,3 +165,5 @@ STM32MCP_STOP_MOTOR_COMMAND_ID                                                  
 STM32MCP_STOP_RAMP_COMMAND_ID                                                       = 0x03
 STM32MCP_START_STOP_COMMAND_ID                                                      = 0x06
 STM32MCP_ENCODER_ALIGN_COMMAND_ID                                                   = 0x08
+
+#finished
