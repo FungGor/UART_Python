@@ -166,8 +166,11 @@ STM32MCP_STOP_RAMP_COMMAND_ID                                                   
 STM32MCP_START_STOP_COMMAND_ID                                                      = 0x06
 STM32MCP_ENCODER_ALIGN_COMMAND_ID                                                   = 0x08
 
-#finished
-
+# Structure STM32MCP_rxMsg
+# @brief     When the motor controller sends the received message back, it stores the message here
+# @data      rxMsg - The memory message to the received message, the size of the message is the second index rxMsg[1]
+#            motorID - The motor ID described in STM32MCP
+#            frameID - The frame ID described in STM32MCP
 class STM32MCP_rxMsg_t():
    def __init__ (self, frameID, rxPayloadLength, txPayloadLength, rxPayload, txPayload):
      self.framID = frameID
@@ -176,14 +179,28 @@ class STM32MCP_rxMsg_t():
      self.rxPayload = rxPayload
      self.txPayload = txPayload
 
+# @Structure STM32MCP_exMsg
+# @brief     When the motor controller sends the exception, it stores the message here
+# @data      exceptionCode - The exception code described in STM32MCP
 class STM32MCP_exMsg_t():
     def __init__(self, exceptionCode):
      self.exceptionCode = exceptionCode
 
+# @Structure STM32MCP_erMsg_t
+# @brief     When the motor controller sends the error back, it stores the message here
+# @data      exceptionCode - The error code described in STM32MCP
 class STM32MCP_erMsg_t():
     def __init__(self, errorCode):
         self.errorCode = errorCode
 
+# @Structure STM32MCP_regAttribute_t
+# @brief     It is used to define a stm32 motor control register
+#            Please see UM1052 (Pg 161 - 178) for more details
+#
+# @data      regID:            The register ID
+#            payloadLength:    The length of the payload
+#            payload:          The pointer of the payload
+#            permission:       Read/Write permission
 class STM32MCP_regAttribute_t():
     def __init__(self, regID, payloadLength, payload, permission):
         self.regID = regID
