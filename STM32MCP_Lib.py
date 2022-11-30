@@ -167,3 +167,26 @@ STM32MCP_START_STOP_COMMAND_ID                                                  
 STM32MCP_ENCODER_ALIGN_COMMAND_ID                                                   = 0x08
 
 #finished
+
+class STM32MCP_rxMsg_t():
+   def __init__ (self, frameID, rxPayloadLength, txPayloadLength, rxPayload, txPayload):
+     self.framID = frameID
+     self.rxPayloadLength = rxPayloadLength
+     self.txPayloadLength = txPayloadLength
+     self.rxPayload = rxPayload
+     self.txPayload = txPayload
+
+class STM32MCP_exMsg_t():
+    def __init__(self, exceptionCode):
+     self.exceptionCode = exceptionCode
+
+class STM32MCP_erMsg_t():
+    def __init__(self, errorCode):
+        self.errorCode = errorCode
+
+class STM32MCP_regAttribute_t():
+    def __init__(self, regID, payloadLength, payload, permission):
+        self.regID = regID
+        self.payloadLength = payloadLength
+        self.payload = payload
+        self.permission = permission      
