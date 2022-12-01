@@ -1,3 +1,15 @@
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+#
+#
+#
+# Before you start using this library, you must read UM1052(Pg161-178).
+#
+#
+#
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #THE FOLLOWING PARAMETERS COME FROM THE STM32 FOC COMMAND LIST. FOR MORE DETAILS, PLEASE READ THE SDK
 STM32_NUMBER_OF_REGISTERS  = 0x0A
 STM32MCP_NUMBER_OF_MOTORS  = 0x01
@@ -206,4 +218,70 @@ class STM32MCP_regAttribute_t():
         self.regID = regID
         self.payloadLength = payloadLength
         self.payload = payload
-        self.permission = permission      
+        self.permission = permission
+
+# @Structure STM32MCP_txMsgNode   (Singly Linked List)
+# @brief     It defines a message Node to be transmit.
+#            Multiple node will be linked together
+#            to form a FIFO transmit buffer
+# 
+# @data      txMsg:   The pointer to an array of bytes
+#            size:    The size of the array
+#            next:    The pointer of the next tx message node
+class STM32MCP_txNode_t():
+    def __init__(self,txMsg, size, next = None):
+        self.txMsg = txMsg
+        self.size = size
+        self.next = next
+
+# @Structure STM32MCP_rxMsgObj_t
+# @brief     It stores the array of received bytes, payload length
+#            and the current index of the received byte. When all
+#            bytes are received, it will go through CRC checking
+#            and pass the message to upper layer.
+# 
+# @data      rxMsgBuf:      An array of received bytes
+#            currIndex:     The current index of the received byte
+#            payloadLength: The expected payload length of the data
+class STM32MCP_rxMsgObj_t():
+    def __init__(self, rxMsgBuf, currIndex, payloadLength):
+        self.rxMsgBuf = rxMsgBuf
+        self.currIndex = currIndex
+        self.patloadlength = payloadLength
+
+# @Structure STM32MCP_CBs_t
+# @brief     It defines a set of function pointer that the server
+#            wants to point to the application functions
+#
+# @data      rxHandler:  Called when received data passed CRC checking, it will be passed to rxMsgCb
+#            exHandler:  Called when there are exception
+#            erHandler:  Called when there are error
+def STM32MCP_CBs_t():
+    def rxHandler():
+        return 0
+    
+    def exHanler():
+        return 0
+    
+    def erHandler():
+        return 0
+
+# @Structure STM32MCP_uartManager_t
+# @brief     It defines a set of function pointer that the server
+#            wants to point to the application functions
+# @data      uartOpen:  Called when the application wants to initialize the uart peripheral
+#            uartWrite: Called when the application wants to write to the uart peripheral
+#            uartRead:  Called when the application wants to read from the uart peripheral
+#            uartClose: Called when the application wants to terminate the uart peripheral
+class STM32MCP_uartManager_t():
+     def uartOpen():
+         return 0
+    
+     def uartRead():
+         return 0
+    
+     def uartWrite():
+         return 0
+    
+     def uartClose():
+         return 0
