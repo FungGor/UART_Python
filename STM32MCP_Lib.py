@@ -285,3 +285,19 @@ class STM32MCP_uartManager_t():
     
      def uartClose():
          return 0
+
+# @Structure STM32MCP_timerManager_t
+# @brief     It defines a set of function pointer that the server
+#            wants to point to the application functions
+# @data      timerStart: Called when the server wants to start the retransmission timer
+#            timerResetCounter: Reset the counter to zero
+#            timerStop:  Called when the server wants to stop the retransmission timer
+class STM32MCP_timerManager_t():
+    def STM32MCP_timerStart():
+        return 0
+
+    def STM32MCP_timerResetCounter():
+        return 0
+
+    def STM32_timerStop():
+        return 0
