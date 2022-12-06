@@ -5,7 +5,7 @@
 import serial
 
 # @Class UART
-# @brief     It defines a set of function pointer that the server
+# @brief     It defines a set of member unctions that the server
 #            wants to point to the application functions
 # @data      uartOpen:   Called when the application wants to initialize the uart peripheral
 #            uartWrite:  Called when the application wants to write to the uart peripheral
