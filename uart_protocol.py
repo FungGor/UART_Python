@@ -1,14 +1,18 @@
 # https://www.engineersgarage.com/articles-raspberry-pi-serial-communication-uart-protocol-ttl-port-usb-serial-boards/
 # https://pyserial.readthedocs.io/en/latest/pyserial_api.html
+# https://sites.google.com/site/greenmechatroniks/code-garage/rs-232-pyserial-in-python
+
 import serial
 
 # @Class UART
 # @brief     It defines a set of function pointer that the server
 #            wants to point to the application functions
-# @data      uartOpen:  Called when the application wants to initialize the uart peripheral
-#            uartWrite: Called when the application wants to write to the uart peripheral
-#            uartRead:  Called when the application wants to read from the uart peripheral
-#            uartClose: Called when the application wants to terminate the uart peripheral
+# @data      uartOpen:   Called when the application wants to initialize the uart peripheral
+#            uartWrite:  Called when the application wants to write to the uart peripheral
+#            uartRead:   Called when the application wants to read from the uart peripheral
+#            uartClose:  Called when the application wants to terminate the uart peripheral
+#            uartStatus: Called when the application wants to check whether the uart peripheral is connected 
+
 class UART_Protocol:
      def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol):
         self.portID = portID

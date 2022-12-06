@@ -11,6 +11,7 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 import uart_protocol
+import timer_thread_control
 
 #THE FOLLOWING PARAMETERS COME FROM THE STM32 FOC COMMAND LIST. FOR MORE DETAILS, PLEASE READ THE SDK
 STM32_NUMBER_OF_REGISTERS  = 0x0A
@@ -282,6 +283,13 @@ class STM32MCP_uartManager_t(uart_protocol.UART_Protocol):
     def checkConnection(self):
         isConnected = super().uartStatus()
         return isConnected
+    
+    def sysMsg(self):
+        if self.checkConnection == True: 
+            print ("COM PORT: ",self.portID)
+            print ("Baud rate: ",self.baudrate)
+            print ("Successfully connected !")
+            
 
 # @Structure STM32MCP_timerManager_t
 # @brief     It defines a set of function pointer that the server
