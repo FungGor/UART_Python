@@ -10,6 +10,8 @@
 #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+import uart_protocol
+
 #THE FOLLOWING PARAMETERS COME FROM THE STM32 FOC COMMAND LIST. FOR MORE DETAILS, PLEASE READ THE SDK
 STM32_NUMBER_OF_REGISTERS  = 0x0A
 STM32MCP_NUMBER_OF_MOTORS  = 0x01
@@ -183,7 +185,7 @@ STM32MCP_ENCODER_ALIGN_COMMAND_ID                                               
 # @data      rxMsg - The memory message to the received message, the size of the message is the second index rxMsg[1]
 #            motorID - The motor ID described in STM32MCP
 #            frameID - The frame ID described in STM32MCP
-class STM32MCP_rxMsg_t():
+class STM32MCP_rxMsg_t:
    def __init__ (self, frameID, rxPayloadLength, txPayloadLength, rxPayload, txPayload):
      self.framID = frameID
      self.rxPayloadLength = rxPayloadLength
@@ -194,14 +196,14 @@ class STM32MCP_rxMsg_t():
 # @Structure STM32MCP_exMsg
 # @brief     When the motor controller sends the exception, it stores the message here
 # @data      exceptionCode - The exception code described in STM32MCP
-class STM32MCP_exMsg_t():
+class STM32MCP_exMsg_t:
     def __init__(self, exceptionCode):
      self.exceptionCode = exceptionCode
 
 # @Structure STM32MCP_erMsg_t
 # @brief     When the motor controller sends the error back, it stores the message here
 # @data      exceptionCode - The error code described in STM32MCP
-class STM32MCP_erMsg_t():
+class STM32MCP_erMsg_t:
     def __init__(self, errorCode):
         self.errorCode = errorCode
 
@@ -213,7 +215,7 @@ class STM32MCP_erMsg_t():
 #            payloadLength:    The length of the payload
 #            payload:          The pointer of the payload
 #            permission:       Read/Write permission
-class STM32MCP_regAttribute_t():
+class STM32MCP_regAttribute_t:
     def __init__(self, regID, payloadLength, payload, permission):
         self.regID = regID
         self.payloadLength = payloadLength
@@ -228,7 +230,7 @@ class STM32MCP_regAttribute_t():
 # @data      txMsg:   The pointer to an array of bytes
 #            size:    The size of the array
 #            next:    The pointer of the next tx message node
-class STM32MCP_txNode_t():
+class STM32MCP_txNode_t:
     def __init__(self,txMsg, size, next = None):
         self.txMsg = txMsg
         self.size = size
@@ -243,7 +245,7 @@ class STM32MCP_txNode_t():
 # @data      rxMsgBuf:      An array of received bytes
 #            currIndex:     The current index of the received byte
 #            payloadLength: The expected payload length of the data
-class STM32MCP_rxMsgObj_t():
+class STM32MCP_rxMsgObj_t:
     def __init__(self, rxMsgBuf, currIndex, payloadLength):
         self.rxMsgBuf = rxMsgBuf
         self.currIndex = currIndex
@@ -273,18 +275,13 @@ def STM32MCP_CBs_t():
 #            uartWrite: Called when the application wants to write to the uart peripheral
 #            uartRead:  Called when the application wants to read from the uart peripheral
 #            uartClose: Called when the application wants to terminate the uart peripheral
-class STM32MCP_uartManager_t():
-     def uartOpen():
-         return 0
+class STM32MCP_uartManager_t(uart_protocol.UART_Protocol):
+    def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol):
+        super().__init__(portID, baudrate, parity, stopbits, bytesize, timeout, protocol)
     
-     def uartRead():
-         return 0
-    
-     def uartWrite():
-         return 0
-    
-     def uartClose():
-         return 0
+    def checkConnection(self):
+        isConnected = super().uartStatus()
+        return isConnected
 
 # @Structure STM32MCP_timerManager_t
 # @brief     It defines a set of function pointer that the server
@@ -292,7 +289,7 @@ class STM32MCP_uartManager_t():
 # @data      timerStart: Called when the server wants to start the retransmission timer
 #            timerResetCounter: Reset the counter to zero
 #            timerStop:  Called when the server wants to stop the retransmission timer
-class STM32MCP_timerManager_t():
+class STM32MCP_timerManager_t:
     def STM32MCP_timerStart():
         return 0
 
