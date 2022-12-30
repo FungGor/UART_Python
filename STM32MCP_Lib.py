@@ -278,7 +278,9 @@ def STM32MCP_CBs_t():
     def erHandler():
         return 0
 
-# @Structure STM32MCP_uartManager_t
+# @Structure Inheritance Structure -- STM32MCP_uartManager_t 
+#            Parent class: UART_Protocol (Hardware Level)
+#            Child  class: STM32MCP_uartManager_t (Application Level)
 # @brief     It defines a set of function pointer that the server
 #            wants to point to the application functions
 # @data      uartOpen:  Called when the application wants to initialize the uart peripheral
@@ -300,7 +302,7 @@ class STM32MCP_uartManager_t(uart_protocol.UART_Protocol):
             print ("Successfully connected !")
             
 
-# @Structure STM32MCP_timerManager_t
+# @Structure Inheritance Stucture -- STM32MCP_timerManager_t
 # @brief     It defines a set of function pointer that the server
 #            wants to point to the application functions
 # @data      timerStart: Called when the server wants to start the retransmission timer
