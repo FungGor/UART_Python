@@ -1,5 +1,6 @@
 #This library implements the functions for controllling the STM32 Motor Driver (Applicable for F1xxx and F4xxx Series) 
 import STM32MCP_Lib
+import timer_thread_control
 
 #define UART Configuration Parameters 
 #Create UART Objects
