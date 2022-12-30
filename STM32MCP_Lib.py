@@ -181,6 +181,15 @@ STM32MCP_STOP_RAMP_COMMAND_ID                                                   
 STM32MCP_START_STOP_COMMAND_ID                                                      = 0x06
 STM32MCP_ENCODER_ALIGN_COMMAND_ID                                                   = 0x08
 
+#system command ID
+STM32MCP_POWER_OFF           = 0X00
+STM32MCP_POWER_ON            = 0x01
+STM32MCP_HEARTBEAT           = 0x02
+STM32MCP_GET_SERIAL_NUMBER   = 0x03
+STM32MCP_TAIL_LIGHT_ON       = 0x04
+STM32MCP_TAIL_LIGHT_OFF      = 0x05
+STM32MCP_TOGGLE_TAIL_LIGHT   = 0x06
+
 # Structure STM32MCP_rxMsg
 # @brief     When the motor controller sends the received message back, it stores the message here
 # @data      rxMsg - The memory message to the received message, the size of the message is the second index rxMsg[1]
