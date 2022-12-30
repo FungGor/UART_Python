@@ -24,11 +24,12 @@ class UART_Protocol:
         self.protocol = protocol
      
      def uartOpen(self):
-        self.protocol = serial.Serial(self.portID,baudrate = self.baudrate, parity = self.parity, 
-        stopbits = self.stopbits, 
-        bytesize = self.bytesize,
-        timeout = self.timeout)
-        self.protocol.open()
+         if self.protocol == None:
+           self.protocol = serial.Serial(self.portID,baudrate = self.baudrate, parity = self.parity, 
+           stopbits = self.stopbits, 
+           bytesize = self.bytesize,
+           timeout = self.timeout)
+           self.protocol.open()
      
      def uartRead(self):
         self.protocol.readline()
@@ -41,3 +42,35 @@ class UART_Protocol:
     
      def uartStatus(self):
          return self.protocol.isOpen()
+      
+     def uartParaConfig(self):
+         match self.parity:
+            case 'NONE':
+               self.parity = serial.PARITY_NONE
+            case 'EVEN':
+               self.parity = serial.PARITY_EVEN
+            case 'ODD':
+                self.parity = serial.PARITY_ODD
+            case 'MASK':
+                self.parity = serial.PARITY_MARK
+            case 'SPACE':
+                 self.parity = serial.PARITY_SPACE
+         
+         match self.stopbits:
+            case 1:
+               self.stopbits = serial.STOPBITS_ONE
+            case 1.5:
+               self.stopbits = serial.STOPBITS_ONE_POINT_FIVE
+            case 2:
+               self.stopbits = serial.STOPBITS_TWO
+         
+         match self.bytesize:
+            case 5:
+               self.bytesize = serial.FIVEBITS
+            case 6:
+               self.bytesize = serial.SIXBITS
+            case 7:
+               self.bytesize = serial.SEVENBITS
+            case 8:
+               self.bytesize = serial.EIGHTBITS
+            
