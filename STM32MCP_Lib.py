@@ -24,7 +24,14 @@ STM32MCP_MAXIMUM_NUMBER_OF_NODE  = 0x28
 STM32MCP_MAXIMUM_RETRANSMISSION_ALLOWANCE = 0x0A
 
 #Maximum rx buffer length
-STM32MCP_RX_MSG_BUFF_LENGTH = 0xFF
+STM32MCP_RX_MSG_BUFF_LENGTH = 0x0A
+
+#Haert Beat Period (in ms)
+STM32MCP_HEARTBEAT_PERIOD  = 1000
+
+#Communication State
+STM32MCP_COMMUNICATION_ACTIVE = 0x00
+STM32MCP_COMMUNICATION_DEACTIVE = 0x01
 
 #Register read and write permission
 STM32MCP_REGISTER_PERMIT_READ  = 0x01
@@ -259,7 +266,7 @@ class STM32MCP_rxMsgObj_t:
     def __init__(self, rxMsgBuf, currIndex, payloadLength):
         self.rxMsgBuf = rxMsgBuf
         self.currIndex = currIndex
-        self.patloadlength = payloadLength
+        self.payloadlength = payloadLength
 
 # @Structure STM32MCP_CBs_t
 # @brief     It defines a set of function pointer that the server

@@ -55,7 +55,7 @@ class UART_Protocol:
             case 'MASK':
                 self.parity = serial.PARITY_MARK
             case 'SPACE':
-                 self.parity = serial.PARITY_SPACE
+                self.parity = serial.PARITY_SPACE
          
          match self.stopbits:
             case 1:
