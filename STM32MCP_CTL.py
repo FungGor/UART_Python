@@ -93,7 +93,57 @@ STM32MCP_REG_ATTRIBUTE.append(STM32_Iq)
 STM32MCP_REG_ATTRIBUTE.append(STM32_STATUS)
 
 
+# @fn       STM32MCP_initQueue
+#
+# @brief    To get set the head and tailPtr
+#
+# @param    None
 def STM32MCP_initQueue():
     STM32MCP_headPtr = None
     STM32MCP_tailPtr = None
     STM32MCP_queueSize = 0
+
+
+# @fn         STM32MCP_getQueueSize
+#
+# @brief      To get the current size of the queue
+#
+# @param      None
+# 
+# @return     The size of the queue
+def STM32MCP_getQueueSize():
+    return STM32MCP_queueSize
+
+
+# @fn      STM32MCP_queueIsEmpty
+# 
+# @brief   To check if he txMsg queue is empty
+#
+# @param   None
+#
+# @return  None
+def STM32MCP_queueIsEmpty():
+    if (STM32MCP_headPtr == None & STM32MCP_tailPtr == None):
+        return 0x01
+    else:
+        return 0x00
+
+
+# @fn      STM32MCP_enqueueMsg
+#
+# @param   txMsg  The memory address of the fist byte of uart tx message
+#          size   The size of the uart tx message in number of bytes
+#  
+# @return  None
+def STM32MCP_enqueueMsg(txMsg, sizeMsg):
+    if (STM32MCP_getQueueSize() <= STM32MCP_Lib.STM32MCP_MAXIMUM_NUMBER_OF_NODE):
+        tempPtr = STM32MCP_Lib.STM32MCP_txNode_t()
+        tempPtr.txMsg = txMsg
+        tempPtr.size  = sizeMsg
+        tempPtr.next  = None
+        if (STM32MCP_tailPtr == None):
+            STM32MCP_headPtr = tempPtr
+            STM32MCP_tailPtr = tempPtr
+        elif (STM32MCP_tailPtr!=None):
+            STM32MCP_tailPtr.next = tempPtr
+            STM32MCP_tailPtr = tempPtr
