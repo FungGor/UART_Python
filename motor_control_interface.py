@@ -8,9 +8,12 @@
 # It could be used to simulate the dashboard's environment for debugging purpose
 # For the advanced data analysis, it might be required to upload the logged data to Google Drive
 # For more information, please go to https://developers.google.com/drive/api/quickstart/python
+# Reference : https://www.youtube.com/watch?v=u3NnzRIwjH8&list=PLtVUYRe-Z-meHdTlzqCHGPjZvnL2VZVn8&index=2
+#             https://www.pythontutorial.net/tkinter/
 
 import matplotlib
-import tkinter
-import threading
-import STM32MCP_Lib
 import serial
+from GUICTL import GUIConsole
+
+stmConsole = GUIConsole()
+stmConsole.root.mainloop()
