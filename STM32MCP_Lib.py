@@ -248,10 +248,10 @@ class STM32MCP_regAttribute_t:
 #            size:    The size of the array
 #            next:    The pointer of the next tx message node
 class STM32MCP_txNode_t:
-    def __init__(self):
-        self.txMsg = None
-        self.size = None
-        self.next = None
+    def __init__(self, txMsg = None, size = 0, next = None):
+        self.txMsg = txMsg
+        self.size = size
+        self.next = next
 
 # @Structure STM32MCP_rxMsgObj_t
 # @brief     It stores the array of received bytes, payload length

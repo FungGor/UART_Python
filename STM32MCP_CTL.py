@@ -28,8 +28,8 @@ heartbeatManager = STM32MCP_Lib.STM32MCP_timerManager_t()
 rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t()
 
 #STM32MCP Queue Linked List Pointer
-STM32MCP_headPtr = STM32MCP_Lib.STM32MCP_txNode_t()
-STM32MCP_tailPtr = STM32MCP_Lib.STM32MCP_txNode_t()
+STM32MCP_headPtr = STM32MCP_Lib.STM32MCP_txNode_t(None,0,None)
+STM32MCP_tailPtr = STM32MCP_Lib.STM32MCP_txNode_t(None,0,None)
 STM32MCP_queueSize = 0
 
 retransmissionCount = 0x00
@@ -141,9 +141,10 @@ def STM32MCP_enqueueMsg(txMsg, sizeMsg):
         tempPtr.txMsg = txMsg
         tempPtr.size  = sizeMsg
         tempPtr.next  = None
-        if (STM32MCP_tailPtr == None):
+        if(STM32MCP_tailPtr == None):
             STM32MCP_headPtr = tempPtr
             STM32MCP_tailPtr = tempPtr
-        elif (STM32MCP_tailPtr!=None):
+        else:
             STM32MCP_tailPtr.next = tempPtr
             STM32MCP_tailPtr = tempPtr
+        STM32MCP_queueSize = STM32MCP_queueSize + 1
