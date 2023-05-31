@@ -10,7 +10,7 @@
 # For more information, please go to https://developers.google.com/drive/api/quickstart/python
 
 import matplotlib
-import tkinter as tk
+import tkinter
 import threading
 import STM32MCP_Lib
-import STM32MCP_CTL
+import serial
