@@ -13,46 +13,8 @@
 
 import matplotlib
 import serial
-import tkinter as tk
-from tkinter import ttk
-from GUICTL import GUIConsole,GUIConfig
-''''
-root = tk.Tk()
-root.title('STM32 Motor Control Console')
-root.geometry("1500x700")
-root.resizable(False,False)
-root.iconbitmap(bitmap = 'motor.ico')
+from GUICTL import UI_INIT,UI_UART_CTL
 
-#Create the Frame
-uart_frame = ttk.LabelFrame(root, text='UART CONNECTION')
-uart_frame.grid(column = 0, row=0, padx=50, pady=30)
-
-#PUT THEM ON THE FRAME
-uart_com_port = ttk.Label(uart_frame, text = 'Available Port (s)',width=15)
-uart_com_port.grid(column = 0, row = 1, ipadx=8, ipady= 0)
-
-
-uart_com_rate = ttk.Label(uart_frame, text = 'Baud Rate',width=15)
-uart_com_rate.grid(column = 0, row = 0, ipadx=8, ipady= 0)
-
-BAUD_LIST = ["9600", "19200", "38400", "57600", "115200", "460800", "921600"]
-baud = tk.StringVar(root)
-baud.set(BAUD_LIST[4])
-baud_choices = ttk.OptionMenu(uart_frame,baud,*BAUD_LIST)
-baud_choices.grid(column = 1, row = 0, ipadx=10, ipady= 0)
-
-COM_LIST = ["COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM10"]
-COM = tk.StringVar(root)
-COM.set(COM_LIST[9])
-COM_choices = ttk.OptionMenu(uart_frame,COM,*COM_LIST)
-COM_choices.grid(column=1,row=1,ipadx=10, ipady= 0)
-
-connect = ttk.Button(uart_frame,text = 'Connect')
-connect.grid(column=2,row=0,ipadx=10, ipady= 0)
-
-disconnect = ttk.Button(uart_frame,text = 'Disconnect')
-disconnect.grid(column=3,row=0,ipadx=10, ipady= 0)
-'''
-stm32MCP = GUIConsole()
-stm32Config = GUIConfig(stm32MCP.root)
+stm32MCP = UI_INIT()
+stm32Config = UI_UART_CTL(stm32MCP.root)
 stm32MCP.root.mainloop()
