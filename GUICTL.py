@@ -24,23 +24,23 @@ class UI_UART_CTL:
     
     def UI_UART_COM_CONFIG(self):
         self.uart_com_port = ttk.Label(self.uart_frame, text = 'Available Port (s)',width=15)
-        self.COM_LIST = ["COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM10"]
+        self.COM_LIST = ["-----","COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM10"]
         self.COM = tk.StringVar(self.root)
         self.COM.set(self.COM_LIST[9])
-        self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST)
+        self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST,command = self.uart_info)
     
     def UI_UART_BAUD_CONFIG(self):
         self.uart_com_rate = ttk.Label(self.uart_frame, text = 'Baud Rate',width=15)
-        self.BAUD_LIST = ["9600", "19200", "38400", "57600", "115200", "460800", "921600"]
+        self.BAUD_LIST = ["-----","9600", "19200", "38400", "57600", "115200", "460800", "921600"]
         self.baud = tk.StringVar(self.root)
         self.baud.set(self.BAUD_LIST[4])
-        self.baud_choices = ttk.OptionMenu(self.uart_frame,self.baud,*self.BAUD_LIST)
+        self.baud_choices = ttk.OptionMenu(self.uart_frame,self.baud,*self.BAUD_LIST,command = self.uart_info)
 
     def UI_UART_CONNECT(self):
-        self.connect = ttk.Button(self.uart_frame,text = 'Connect',command=self.uart_connection_callback)
+        self.connect = ttk.Button(self.uart_frame,text = 'Connect',command=self.uart_connection_callback, state = "disabled")
     
     def UI_UART_DISCONNECT(self):
-        self.disconnect = ttk.Button(self.uart_frame,text = 'Disconnect',command=self.uart_disconnect_callback)
+        self.disconnect = ttk.Button(self.uart_frame,text = 'Disconnect',command=self.uart_disconnect_callback, state = "disabled")
 
     def UI_UART(self):
         self.uart_frame.grid(column = 0, row=0, padx=50, pady=30)
@@ -56,3 +56,10 @@ class UI_UART_CTL:
     
     def uart_disconnect_callback(self):
         print('Disconnected !')
+    
+    def uart_info(self,fuck):
+        if "-----" in self.baud.get() or "-----"in self.COM.get():
+            self.connect["state"]="disable"
+            self.disconnect["state"] = "disable"
+        elif "-----" not in self.baud.get() and "-----" not in self.COM.get():
+            self.connect["state"] = "active"
