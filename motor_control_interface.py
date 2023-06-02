@@ -11,8 +11,6 @@
 # Reference : https://www.youtube.com/watch?v=u3NnzRIwjH8&list=PLtVUYRe-Z-meHdTlzqCHGPjZvnL2VZVn8&index=2
 #             https://www.pythontutorial.net/tkinter/
 
-import matplotlib
-import serial
 from GUICTL import UI_INIT,UI_UART_CTL
 
 stm32MCP = UI_INIT()
