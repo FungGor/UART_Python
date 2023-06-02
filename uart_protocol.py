@@ -3,6 +3,7 @@
 # https://sites.google.com/site/greenmechatroniks/code-garage/rs-232-pyserial-in-python
 
 import serial
+import serial.tools.list_ports
 
 # @Class UART
 # @brief     It defines a set of member unctions that the server
@@ -76,7 +77,17 @@ class UART_Protocol:
                self.bytesize = serial.EIGHTBITS
 
 
+#Scanning the available ports
 class UART_SCAN():
    def __init__(self):
       pass
+   
+   def com_scan(self,com_port):
+      self.port = com_port
+      self.scanning = serial.tools.list_ports.comports()
+      for scanning, description, PORT_ID in sorted(self.scanning):
+         print("{}: {} [{}]".format(scanning,description,PORT_ID))
+         print(scanning)
+         self.port.append(scanning)
+      return self.port
             

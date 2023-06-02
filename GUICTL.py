@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+import serial.tools.list_ports
+from uart_protocol import UART_SCAN
 
 class UI_INIT:
     def __init__(self):
@@ -25,16 +27,16 @@ class UI_UART_CTL:
     
     def UI_UART_COM_CONFIG(self):
         self.uart_com_port = ttk.Label(self.uart_frame, text = 'Available Port (s)',width=15)
-        self.COM_LIST = ["-----","COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM10"]
+        self.COM_LIST = ["-----"]
         self.COM = tk.StringVar(self.root)
-        self.COM.set(self.COM_LIST[9])
+        self.COM.set(self.COM_LIST[0])
         self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST,command = self.uart_info)
     
     def UI_UART_BAUD_CONFIG(self):
         self.uart_com_rate = ttk.Label(self.uart_frame, text = 'Baud Rate',width=15)
-        self.BAUD_LIST = ["-----","9600", "19200", "38400", "57600", "115200", "460800", "921600"]
+        self.BAUD_LIST = ["-----","9600","19200","38400","57600","115200","460800","921600"]
         self.baud = tk.StringVar(self.root)
-        self.baud.set(self.BAUD_LIST[4])
+        self.baud.set(self.BAUD_LIST[7])
         self.baud_choices = ttk.OptionMenu(self.uart_frame,self.baud,*self.BAUD_LIST,command = self.uart_info)
 
     def UI_UART_CONNECT(self):
@@ -71,3 +73,8 @@ class UI_UART_CTL:
     
     def uart_port_search(self):
         print('Refresh!')
+        self.com_config = UART_SCAN()
+        self.COM_LIST = self.com_config.com_scan(self.COM_LIST)
+        self.COM = tk.StringVar(self.root)
+        self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST,command=self.uart_info)
+        self.COM_choices.grid(column=1,row=1,ipadx=10,ipady=0)
