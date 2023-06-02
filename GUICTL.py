@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-import serial.tools.list_ports
-from uart_protocol import UART_SCAN
+from tkinter import messagebox
+from uart_protocol import UART_SCAN, UART_SETTING
 
 class UI_INIT:
     def __init__(self):
@@ -59,10 +59,27 @@ class UI_UART_CTL:
         self.refresh.grid(column = 2,row=1,ipadx=10, ipady=0)
     
     def uart_connection_callback(self):
-        print('Connected !')
-    
+        stm32_connect = None
+        PORT = self.COM.get()
+        BAUD = self.baud.get()
+        print(PORT, "",BAUD)
+        self.STM32_UART = UART_SETTING(PORT,BAUD,'NONE',1,8,0.1,stm32_connect)
+        self.STM32_UART.uartOpen()
+        print(self.STM32_UART.uartStatus())
+        if self.STM32_UART.uartStatus() is True:
+            self.disconnect["state"] = "active"
+            ConnMsg = f"Successfully Connected !"
+            messagebox.showinfo("UART",ConnMsg)
+
+   
     def uart_disconnect_callback(self):
+        self.STM32_UART.uartClose()
         print('Disconnected !')
+        print(self.STM32_UART.uartStatus())
+        if self.STM32_UART.uartStatus() is False:
+            self.disconnect["state"] = "disable"
+            DisMsg = f"Disconnected !"
+            messagebox.showinfo("UART", DisMsg)
     
     def uart_info(self,fuck):
         if "-----" in self.baud.get() or "-----"in self.COM.get():
@@ -74,6 +91,7 @@ class UI_UART_CTL:
     def uart_port_search(self):
         print('Refresh!')
         self.com_config = UART_SCAN()
+        self.COM_LIST.clear()
         self.COM_LIST = self.com_config.com_scan(self.COM_LIST)
         self.COM = tk.StringVar(self.root)
         self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST,command=self.uart_info)

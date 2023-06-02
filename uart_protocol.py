@@ -14,24 +14,34 @@ import serial.tools.list_ports
 #            uartClose:     Called when the application wants to terminate the uart peripheral
 #            uartStatus:    Called when the application wants to check whether the uart peripheral is connected 
 #            uartParaConfig: It must be called before using the another functions defined in UART_Protocol class
+#
+# For STM32 FOC Motor Control SDK, we have the following UART Configurations:
+# BAUD RATE   = 115200
+# WORD Length = 8-BIT
+# STOP BITS   = STOPBITS_1
+# PARITY      = UART_PARITY_NONE
 
-class UART_Protocol:
+class UART_SETTING:
      def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol):
         self.portID = portID
         self.baudrate = baudrate
         self.parity = parity
+        self.parity = self.uart_Parity_Config()
         self.stopbits = stopbits
+        self.stopbits = self.uart_STOPBIT_Config()
         self.bytesize = bytesize
+        self.bytesize = self.uart_BYTESIZE_Config()
         self.timeout = timeout
         self.protocol = protocol
+
      
      def uartOpen(self):
-         if self.protocol == None:
-           self.protocol = serial.Serial(self.portID,baudrate = self.baudrate, parity = self.parity, 
-           stopbits = self.stopbits, 
-           bytesize = self.bytesize,
-           timeout = self.timeout)
-           self.protocol.open()
+          self.protocol = serial.Serial()
+          self.protocol.parity = self.parity
+          self.protocol.baudrate = self.baudrate
+          self.protocol.port = self.portID
+          self.protocol.stopbits = self.stopbits
+          self.protocol.open()
      
      def uartRead(self):
         self.protocol.readline()
@@ -45,7 +55,7 @@ class UART_Protocol:
      def uartStatus(self):
          return self.protocol.isOpen()
       
-     def uartParaConfig(self):
+     def uart_Parity_Config(self):
          match self.parity:
             case 'NONE':
                self.parity = serial.PARITY_NONE
@@ -57,15 +67,21 @@ class UART_Protocol:
                 self.parity = serial.PARITY_MARK
             case 'SPACE':
                 self.parity = serial.PARITY_SPACE
-         
+         print(self.parity)
+         return self.parity
+      
+     def uart_STOPBIT_Config(self):
          match self.stopbits:
-            case 1:
-               self.stopbits = serial.STOPBITS_ONE
-            case 1.5:
-               self.stopbits = serial.STOPBITS_ONE_POINT_FIVE
-            case 2:
-               self.stopbits = serial.STOPBITS_TWO
-         
+           case 1:
+              self.stopbits = serial.STOPBITS_ONE
+           case 1.5:
+              self.stopbits = serial.STOPBITS_ONE_POINT_FIVE
+           case 2:
+              self.stopbits = serial.STOPBITS_TWO
+         print(self.stopbits)
+         return self.stopbits
+      
+     def uart_BYTESIZE_Config(self):
          match self.bytesize:
             case 5:
                self.bytesize = serial.FIVEBITS
@@ -75,6 +91,8 @@ class UART_Protocol:
                self.bytesize = serial.SEVENBITS
             case 8:
                self.bytesize = serial.EIGHTBITS
+         print(self.bytesize)
+         return self.bytesize
 
 
 #Scanning the available ports
@@ -90,4 +108,3 @@ class UART_SCAN():
          print(scanning)
          self.port.append(scanning)
       return self.port
-            
