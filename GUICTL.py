@@ -17,6 +17,7 @@ class UI_UART_CTL:
         self.UI_UART_BAUD_CONFIG()
         self.UI_UART_CONNECT()
         self.UI_UART_DISCONNECT()
+        self.UI_UART_PORT_REFRESH()
         self.UI_UART()
 
     def UI_UART_FRAME(self):
@@ -41,6 +42,9 @@ class UI_UART_CTL:
     
     def UI_UART_DISCONNECT(self):
         self.disconnect = ttk.Button(self.uart_frame,text = 'Disconnect',command=self.uart_disconnect_callback, state = "disabled")
+    
+    def UI_UART_PORT_REFRESH(self):
+        self.refresh = ttk.Button(self.uart_frame,text="Refresh COM", command=self.uart_port_search)
 
     def UI_UART(self):
         self.uart_frame.grid(column = 0, row=0, padx=50, pady=30)
@@ -50,6 +54,7 @@ class UI_UART_CTL:
         self.COM_choices.grid(column=1,row=1,ipadx=10, ipady= 0)
         self.connect.grid(column=2,row=0,ipadx=10, ipady= 0)
         self.disconnect.grid(column=3,row=0,ipadx=10, ipady= 0)
+        self.refresh.grid(column = 2,row=1,ipadx=10, ipady=0)
     
     def uart_connection_callback(self):
         print('Connected !')
@@ -63,3 +68,6 @@ class UI_UART_CTL:
             self.disconnect["state"] = "disable"
         elif "-----" not in self.baud.get() and "-----" not in self.COM.get():
             self.connect["state"] = "active"
+    
+    def uart_port_search(self):
+        print('Refresh!')

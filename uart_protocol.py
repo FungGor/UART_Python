@@ -74,4 +74,9 @@ class UART_Protocol:
                self.bytesize = serial.SEVENBITS
             case 8:
                self.bytesize = serial.EIGHTBITS
+
+
+class UART_SCAN():
+   def __init__(self):
+      pass
             
