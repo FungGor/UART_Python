@@ -68,7 +68,7 @@ class UI_UART_CTL:
         print(self.STM32_UART.uartStatus())
         if self.STM32_UART.uartStatus() is True:
             self.disconnect["state"] = "active"
-            ConnMsg = f"Successfully Connected !"
+            ConnMsg = f"{self.COM.get()} is successfully connected !"
             messagebox.showinfo("UART",ConnMsg)
 
    
@@ -78,7 +78,7 @@ class UI_UART_CTL:
         print(self.STM32_UART.uartStatus())
         if self.STM32_UART.uartStatus() is False:
             self.disconnect["state"] = "disable"
-            DisMsg = f"Disconnected !"
+            DisMsg = f"{self.COM.get()} is disconnected !"
             messagebox.showinfo("UART", DisMsg)
     
     def uart_info(self,fuck):
