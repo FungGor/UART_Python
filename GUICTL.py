@@ -11,6 +11,22 @@ class UI_INIT:
         self.root.resizable(False,False)
         self.root.iconbitmap(bitmap = 'motor.ico')
 
+class UI_Motor_Mode:
+    def __init__(self):
+        pass
+
+class UI_Motor_Speed:
+    def __init__(self):
+        pass
+
+class UI_Motor_Torque:
+    def __init__(self):
+        pass
+
+class UI_Motor_Parameter:
+    def __init__ (self):
+        pass
+
 class UI_UART_CTL:
     def __init__(self,root):
         self.root = root
@@ -62,7 +78,7 @@ class UI_UART_CTL:
         self.refresh = ttk.Button(self.uart_frame,text="Refresh COM", command=self.uart_port_search)
     
     def UI_UART_SEND_MSG(self):
-        self.send = ttk.Button(self.uart_msg, text ="SEND", command=self.uart_msg_send)
+        self.send = ttk.Button(self.uart_msg, text ="SEND", command=self.uart_msg_send, state='disabled')
 
     def UI_UART(self):
         self.uart_frame.grid(column = 0, row=0, padx=50, pady=30)
@@ -89,6 +105,7 @@ class UI_UART_CTL:
         if self.STM32_UART.uartStatus() is True:
             self.disconnect["state"] = "active"
             self.refresh["state"] = "disable"
+            self.send['state'] = "active"
             ConnMsg = f"{self.COM.get()} is successfully connected !"
             messagebox.showinfo("UART",ConnMsg)
 
@@ -100,6 +117,7 @@ class UI_UART_CTL:
         if self.STM32_UART.uartStatus() is False:
             self.disconnect["state"] = "disable"
             self.refresh["state"] = "active"
+            self.send['state'] = "disabled"
             DisMsg = f"{self.COM.get()} is disconnected !"
             messagebox.showinfo("UART", DisMsg)
     
