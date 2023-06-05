@@ -49,7 +49,7 @@ class UI_UART_CTL:
         self.msg_letter = ttk.Label(self.uart_msg, text = "Commands",width = 15)
         self.COMMAND = ['A','D','R','S']
         self.cmd = tk.StringVar(self.root)
-        self.cmd.set(self.COMMAND[3])
+        self.cmd.set(self.COMMAND)
         self.cmd_choices = ttk.OptionMenu(self.uart_msg,self.cmd, *self.COMMAND)
 
     def UI_UART_CONNECT(self):
