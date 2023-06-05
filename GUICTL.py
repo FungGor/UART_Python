@@ -12,19 +12,40 @@ class UI_INIT:
         self.root.iconbitmap(bitmap = 'motor.ico')
 
 class UI_Motor_Mode:
-    def __init__(self):
-        pass
+    def __init__(self,root):
+        self.root = root
+        self.UI_Motor_Mode_Frame()
+        self.UI_Motor_Mode_Config()
+        self.UI_PUT_MOTOR_MODE_FRAME()
+
+    def UI_Motor_Mode_Frame(self):
+        self.mode_frame = ttk.LabelFrame(self.root, text='Control Mode')
+    
+    def UI_Motor_Mode_Config(self):
+        self.mode_choose = ttk.Label(self.mode_frame,text = 'Motor Control Mode :')
+        self.MODE = ["Speed Mode","Torque Mode"]
+        self.motor = tk.StringVar(self.root)
+        self.motor.set(self.MODE[0])
+        self.MOTOR_CHOICE = ttk.OptionMenu(self.mode_frame,self.motor,*self.MODE)
+    
+    def UI_PUT_MOTOR_MODE_FRAME(self):
+        self.mode_frame.grid(column=1000,row=0,padx=50, pady=30)
+        self.mode_choose.grid(column = 0, row = 0, ipadx=8, ipady=0)
+        self.MOTOR_CHOICE.grid(column = 1, row = 0, ipadx=8, ipady=0)
+        
+
+
 
 class UI_Motor_Speed:
-    def __init__(self):
+    def __init__(self,root):
         pass
 
 class UI_Motor_Torque:
-    def __init__(self):
+    def __init__(self,root):
         pass
 
 class UI_Motor_Parameter:
-    def __init__ (self):
+    def __init__ (self,root):
         pass
 
 class UI_UART_CTL:
