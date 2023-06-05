@@ -20,10 +20,16 @@ class UI_UART_CTL:
         self.UI_UART_CONNECT()
         self.UI_UART_DISCONNECT()
         self.UI_UART_PORT_REFRESH()
+        self.UI_SEND_MSG()
+        self.MSG_LIST_CONFIG()
+        self.UI_UART_SEND_MSG()
         self.UI_UART()
 
     def UI_UART_FRAME(self):
-        self.uart_frame = ttk.LabelFrame(self.root, text='UART CONNECTION')               
+        self.uart_frame = ttk.LabelFrame(self.root, text='UART CONNECTION')
+
+    def UI_SEND_MSG(self):
+        self.uart_msg = ttk.LabelFrame(self.root, text = "MESSAGE SENDING")               
     
     def UI_UART_COM_CONFIG(self):
         self.uart_com_port = ttk.Label(self.uart_frame, text = 'Available Port (s)',width=15)
@@ -38,6 +44,13 @@ class UI_UART_CTL:
         self.baud = tk.StringVar(self.root)
         self.baud.set(self.BAUD_LIST[7])
         self.baud_choices = ttk.OptionMenu(self.uart_frame,self.baud,*self.BAUD_LIST,command = self.uart_info)
+    
+    def MSG_LIST_CONFIG(self):
+        self.msg_letter = ttk.Label(self.uart_msg, text = "Commands",width = 15)
+        self.COMMAND = ['A','D','R','S']
+        self.cmd = tk.StringVar(self.root)
+        self.cmd.set(self.COMMAND[3])
+        self.cmd_choices = ttk.OptionMenu(self.uart_msg,self.cmd, *self.COMMAND)
 
     def UI_UART_CONNECT(self):
         self.connect = ttk.Button(self.uart_frame,text = 'Connect',command=self.uart_connection_callback, state = "disabled")
@@ -47,6 +60,9 @@ class UI_UART_CTL:
     
     def UI_UART_PORT_REFRESH(self):
         self.refresh = ttk.Button(self.uart_frame,text="Refresh COM", command=self.uart_port_search)
+    
+    def UI_UART_SEND_MSG(self):
+        self.send = ttk.Button(self.uart_msg, text ="SEND", command=self.uart_msg_send)
 
     def UI_UART(self):
         self.uart_frame.grid(column = 0, row=0, padx=50, pady=30)
@@ -57,6 +73,10 @@ class UI_UART_CTL:
         self.connect.grid(column=2,row=0,ipadx=10, ipady= 0)
         self.disconnect.grid(column=3,row=0,ipadx=10, ipady= 0)
         self.refresh.grid(column = 2,row=1,ipadx=10, ipady=0)
+        self.uart_msg.grid(column = 100 ,row = 0, padx = 0, pady = 0)
+        self.msg_letter.grid(column = 0 ,row = 0,ipadx=8, ipady= 0 )
+        self.cmd_choices.grid(column = 1, row = 0, ipadx=10, ipady= 0)
+        self.send.grid(column = 2, row = 0,ipadx=10, ipady= 0 )
     
     def uart_connection_callback(self):
         stm32_connect = None
@@ -68,6 +88,7 @@ class UI_UART_CTL:
         print(self.STM32_UART.uartStatus())
         if self.STM32_UART.uartStatus() is True:
             self.disconnect["state"] = "active"
+            self.refresh["state"] = "disable"
             ConnMsg = f"{self.COM.get()} is successfully connected !"
             messagebox.showinfo("UART",ConnMsg)
 
@@ -78,6 +99,7 @@ class UI_UART_CTL:
         print(self.STM32_UART.uartStatus())
         if self.STM32_UART.uartStatus() is False:
             self.disconnect["state"] = "disable"
+            self.refresh["state"] = "active"
             DisMsg = f"{self.COM.get()} is disconnected !"
             messagebox.showinfo("UART", DisMsg)
     
@@ -96,3 +118,7 @@ class UI_UART_CTL:
         self.COM = tk.StringVar(self.root)
         self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST,command=self.uart_info)
         self.COM_choices.grid(column=1,row=1,ipadx=10,ipady=0)
+    
+    def uart_msg_send(self):
+        print(self.cmd.get())
+        self.STM32_UART.uartWrite(self.cmd.get())

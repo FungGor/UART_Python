@@ -2,6 +2,7 @@
 # https://pyserial.readthedocs.io/en/latest/pyserial_api.html
 # https://sites.google.com/site/greenmechatroniks/code-garage/rs-232-pyserial-in-python
 
+from base64 import encode
 import serial
 import serial.tools.list_ports
 
@@ -46,8 +47,9 @@ class UART_SETTING:
      def uartRead(self):
         self.protocol.readline()
 
-     def uartWrite(self,byte):
-         self.protocol.write(byte)
+     def uartWrite(self,input):
+         self.byte = input.encode()
+         self.protocol.write(self.byte)
      
      def uartClose(self):
          self.protocol.close()
