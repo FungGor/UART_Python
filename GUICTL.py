@@ -25,8 +25,8 @@ class UI_Motor_Mode:
         self.mode_choose = ttk.Label(self.mode_frame,text = 'Motor Control Mode :')
         self.MODE = ["Speed Mode","Torque Mode"]
         self.motor = tk.StringVar(self.root)
-        self.motor.set(self.MODE[0])
-        self.MOTOR_CHOICE = ttk.OptionMenu(self.mode_frame,self.motor,*self.MODE)
+        self.motor.set(self.MODE)
+        self.MOTOR_CHOICE = ttk.OptionMenu(self.mode_frame,self.motor,self.MODE[0],*self.MODE)
     
     def UI_PUT_MOTOR_MODE_FRAME(self):
         self.mode_frame.grid(column=1000,row=0,padx=50, pady=30)
@@ -80,14 +80,14 @@ class UI_UART_CTL:
         self.BAUD_LIST = ["-----","9600","19200","38400","57600","115200","460800","921600"]
         self.baud = tk.StringVar(self.root)
         self.baud.set(self.BAUD_LIST[7])
-        self.baud_choices = ttk.OptionMenu(self.uart_frame,self.baud,*self.BAUD_LIST,command = self.uart_info)
+        self.baud_choices = ttk.OptionMenu(self.uart_frame,self.baud,self.BAUD_LIST[0],*self.BAUD_LIST,command = self.uart_info)
     
     def MSG_LIST_CONFIG(self):
         self.msg_letter = ttk.Label(self.uart_msg, text = "Commands",width = 15)
         self.COMMAND = ['A','D','R','S']
         self.cmd = tk.StringVar(self.root)
         self.cmd.set(self.COMMAND)
-        self.cmd_choices = ttk.OptionMenu(self.uart_msg,self.cmd, *self.COMMAND)
+        self.cmd_choices = ttk.OptionMenu(self.uart_msg,self.cmd,self.COMMAND[0], *self.COMMAND)
 
     def UI_UART_CONNECT(self):
         self.connect = ttk.Button(self.uart_frame,text = 'Connect',command=self.uart_connection_callback, state = "disabled")
@@ -155,7 +155,7 @@ class UI_UART_CTL:
         self.COM_LIST.clear()
         self.COM_LIST = self.com_config.com_scan(self.COM_LIST)
         self.COM = tk.StringVar(self.root)
-        self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,*self.COM_LIST,command=self.uart_info)
+        self.COM_choices = ttk.OptionMenu(self.uart_frame,self.COM,self.COM_LIST[0],*self.COM_LIST,command=self.uart_info)
         self.COM_choices.grid(column=1,row=1,ipadx=10,ipady=0)
     
     def uart_msg_send(self):
