@@ -7,7 +7,7 @@ class UI_INIT:
         self.root = tk.Tk()
         self.root.title('STM32 Motor Control Console')
         self.root.geometry("1500x700")
-        self.root.resizable(False,False)
+        self.root.resizable(True,True)
         self.root.iconbitmap(bitmap = 'motor.ico')
 
 class UI_Motor_CTL_Mode:
@@ -17,8 +17,12 @@ class UI_Motor_CTL_Mode:
         self.UI_Motor_Mode_Config()
         self.UI_Motor_Speed_Frame()
         self.UI_Motor_Speed_Control_Config()
+        self.UI_Motor_Speed_PID_Frame()
+        self.UI_Motor_Speed_Control_PID_Config()
         self.UI_Motor_Torque_Frame()
         self.UI_Motor_Torque_Control_Config()
+        self.UI_Motor_Torque_PID_Frame()
+        self.UI_Motor_Torque_Control_PID_Config()
         self.UI_PUT_MOTOR_MODE_FRAME()
 
     def UI_Motor_Mode_Frame(self):
@@ -29,7 +33,13 @@ class UI_Motor_CTL_Mode:
     
     def UI_Motor_Torque_Frame(self):
         self.torque_ctl_frame = ttk.LabelFrame(self.mode_frame, text = "Torque/Current Control")
-
+    
+    def UI_Motor_Speed_PID_Frame(self):
+        self.speed_pid_frame = ttk.LabelFrame(self.mode_frame, text = "Speed Gains")
+    
+    def UI_Motor_Torque_PID_Frame(self):
+        self.torque_pid_frame = ttk.LabelFrame(self.mode_frame, text = "Current Gains")
+    
     def UI_Motor_Mode_Config(self):
         self.mode_choose = ttk.Label(self.mode_frame,text = 'Select Motor Control Mode :')
         self.MODE = ["Speed Mode","Torque Mode"]
@@ -45,12 +55,24 @@ class UI_Motor_CTL_Mode:
         self.ramping  = tk.Text(self.speed_ctl_frame,height=1, width=5, bg = "light cyan", state = "disabled" )
         self.Exec = ttk.Button(self.speed_ctl_frame,text = "Execute Ramp", state = "disabled")
     
+    def UI_Motor_Speed_Control_PID_Config(self):
+        self.Speed_P = ttk.Label(self.speed_pid_frame, text = "Kp",state = "disabled")
+        self.Speed_Kp = tk.Text(self.speed_pid_frame,height=1, width=5, bg = "light cyan",state = "disabled")
+        self.Speed_I = ttk.Label(self.speed_pid_frame,text = "KI",state = "disabled") 
+        self.Speed_KI =  tk.Text(self.speed_pid_frame,height=1, width=5, bg = "light cyan",state = "disabled")
+    
     def UI_Motor_Torque_Control_Config(self):
-         self.Torque = ttk.Label(self.torque_ctl_frame, text = "Target Iq: ")
-         self.inputTorque = tk.Text(self.torque_ctl_frame, height=1, width=5, bg = "light cyan", state = "disabled" )
-         self.torqueDuration = ttk.Label(self.torque_ctl_frame,text = "Durations" )
-         self.torqueRamping = tk.Text(self.torque_ctl_frame,height=1, width=5, bg = "light cyan", state = "disabled" )
-         self.ExecTorqueRamp = ttk.Button(self.torque_ctl_frame, text = "Execute Ramp", state = "disabled")
+        self.Torque = ttk.Label(self.torque_ctl_frame, text = "Target Iq ",state = "disabled")
+        self.inputTorque = tk.Text(self.torque_ctl_frame, height=1, width=5, bg = "light cyan", state = "disabled" )
+        self.torqueDuration = ttk.Label(self.torque_ctl_frame,text = "Durations",state = "disabled" )
+        self.torqueRamping = tk.Text(self.torque_ctl_frame,height=1, width=5, bg = "light cyan", state = "disabled" )
+        self.ExecTorqueRamp = ttk.Button(self.torque_ctl_frame, text = "Execute Ramp", state = "disabled")
+
+    def UI_Motor_Torque_Control_PID_Config(self):
+        self.Current_P = ttk.Label(self.torque_pid_frame, text="Kp",state = "disabled")
+        self.Current_Kp = tk.Text(self.torque_pid_frame, height=1, width=5, bg = "light cyan",state = "disabled")
+        self.Current_I  = ttk.Label(self.torque_pid_frame,text = "KI",state = "disabled")
+        self.Current_KI = tk.Text(self.torque_pid_frame,height=1, width=5, bg = "light cyan",state = "disabled")
 
     def UI_PUT_MOTOR_MODE_FRAME(self):
         #Choosing Control Mode
@@ -72,7 +94,19 @@ class UI_Motor_CTL_Mode:
         self.torqueDuration.grid(column = 1, row = 4,ipadx=11, ipady = 5 )
         self.torqueRamping.grid(column = 2, row = 4, ipadx=8, ipady = 0)
         self.ExecTorqueRamp.grid(column = 2, row =6, ipadx=8, ipady=0)
-    
+        #PID Speed Control
+        self.speed_pid_frame.grid(column = 1, row = 2, padx= 20, pady = 10 )
+        self.Speed_P.grid(column = 1, row = 3, ipadx=11, ipady = 5)
+        self.Speed_Kp.grid(column = 2, row = 3, ipadx=11, ipady = 0)
+        self.Speed_I.grid(column = 1, row = 4,ipadx=13, ipady = 5)
+        self.Speed_KI.grid(column = 2, row = 4, ipadx=11, ipady = 0 )
+        #PID Torque Control
+        self.torque_pid_frame.grid(column = 1, row = 10, padx= 20, pady = 10)
+        self.Current_P.grid(column = 1, row = 3, ipadx=10, ipady = 5)
+        self.Current_Kp.grid(column = 2, row = 3, ipadx=11, ipady = 0)
+        self.Current_I.grid(column = 1, row= 4,ipadx=13, ipady = 5 )
+        self.Current_KI.grid(column = 2, row = 4, ipadx=11, ipady = 0 )
+
     def mode_determine(self):
         if "Speed Mode" in self.motor.get():
             self.Exec["state"] = "active"
@@ -80,11 +114,19 @@ class UI_Motor_CTL_Mode:
             self.ramping["state"] = "normal"
             self.Speed["state"] = "normal"
             self.duration["state"] = "normal"
+            self.Speed_P["state"] = "normal"
+            self.Speed_Kp["state"] = "normal"
+            self.Speed_I["state"] = "normal"
+            self.Speed_KI["state"] = "normal"
             self.inputTorque["state"] = "disabled"
             self.torqueRamping["state"] = "disabled"
             self.ExecTorqueRamp["state"] = "disabled"
             self.Torque["state"] = "disabled"
             self.torqueDuration["state"] = "disabled"
+            self.Current_P["state"] = "disabled"
+            self.Current_Kp["state"] = "disabled"
+            self.Current_I["state"] = "disabled"
+            self.Current_KI["state"] = "disabled"
             print("1")
         elif "Torque Mode" in self.motor.get():
             self.Exec["state"] = "disable"
@@ -92,11 +134,19 @@ class UI_Motor_CTL_Mode:
             self.ramping["state"] = "disabled"
             self.Speed["state"] = "disabled"
             self.duration["state"] = "disabled"
+            self.Speed_P["state"] = "disabled"
+            self.Speed_Kp["state"] = "disabled"
+            self.Speed_I["state"] = "disabled"
+            self.Speed_KI["state"] = "disabled"
             self.inputTorque["state"] = "normal"
             self.torqueRamping["state"] = "normal"
             self.ExecTorqueRamp["state"] = "active"
             self.Torque["state"] = "normal"
             self.torqueDuration["state"] = "normal"
+            self.Current_P["state"] = "normal"
+            self.Current_Kp["state"] = "normal"
+            self.Current_I["state"] = "normal"
+            self.Current_KI["state"] = "normal"
             print("2")
 
 class UI_UART_CTL:
@@ -117,7 +167,7 @@ class UI_UART_CTL:
         self.uart_frame = ttk.LabelFrame(self.root, text='UART CONNECTION')
 
     def UI_SEND_MSG(self):
-        self.uart_msg = ttk.LabelFrame(self.root, text = "MESSAGE SENDING")               
+        self.uart_msg = ttk.LabelFrame(self.root, text = "Acknowledgement Status")               
     
     def UI_UART_COM_CONFIG(self):
         self.uart_com_port = ttk.Label(self.uart_frame, text = 'Available Port (s)',width=15)
