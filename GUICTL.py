@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from uart_protocol import UART_SCAN, UART_SETTING
-
 class UI_INIT:
     def __init__(self):
         self.root = tk.Tk()
@@ -11,42 +10,45 @@ class UI_INIT:
         self.root.resizable(False,False)
         self.root.iconbitmap(bitmap = 'motor.ico')
 
-class UI_Motor_Mode:
+class UI_Motor_CTL_Mode:
     def __init__(self,root):
         self.root = root
         self.UI_Motor_Mode_Frame()
         self.UI_Motor_Mode_Config()
+        self.UI_Motor_Speed_Frame()
+        self.UI_Motor_Speed_Control_Config()
         self.UI_PUT_MOTOR_MODE_FRAME()
 
     def UI_Motor_Mode_Frame(self):
-        self.mode_frame = ttk.LabelFrame(self.root, text='Control Mode')
+        self.mode_frame = ttk.LabelFrame(self.root, text='Motor Speed/Torque Control')
     
+    def UI_Motor_Speed_Frame(self):
+        self.speed_ctl_frame = ttk.LabelFrame(self.mode_frame, text = "Speed Control")
+
     def UI_Motor_Mode_Config(self):
-        self.mode_choose = ttk.Label(self.mode_frame,text = 'Motor Control Mode :')
+        self.mode_choose = ttk.Label(self.mode_frame,text = 'Select Motor Control Mode :')
         self.MODE = ["Speed Mode","Torque Mode"]
         self.motor = tk.StringVar(self.root)
         self.motor.set(self.MODE)
         self.MOTOR_CHOICE = ttk.OptionMenu(self.mode_frame,self.motor,self.MODE[0],*self.MODE)
+        self.CTL_OK = ttk.Button(self.mode_frame, text = "OK")
     
+    def UI_Motor_Speed_Control_Config(self):
+        self.Speed = ttk.Label(self.speed_ctl_frame, text = "Target Speed")
+        self.inputSpeed = tk.Text(self.speed_ctl_frame, height=1, width=5, bg = "light cyan", state = "normal")
+        self.duration = ttk.Label(self.speed_ctl_frame, text = "Durations" )
+        self.ramping  = tk.Text(self.speed_ctl_frame,height=1, width=5, bg = "light cyan", state = "normal" )
+
     def UI_PUT_MOTOR_MODE_FRAME(self):
-        self.mode_frame.grid(column=1000,row=0,padx=50, pady=30)
-        self.mode_choose.grid(column = 0, row = 0, ipadx=8, ipady=0)
-        self.MOTOR_CHOICE.grid(column = 1, row = 0, ipadx=8, ipady=0)
-        
-
-
-
-class UI_Motor_Speed:
-    def __init__(self,root):
-        pass
-
-class UI_Motor_Torque:
-    def __init__(self,root):
-        pass
-
-class UI_Motor_Parameter:
-    def __init__ (self,root):
-        pass
+        self.mode_frame.grid(column=0,row=100,padx=30, pady=30)
+        self.mode_choose.grid(column = 0, row = 0, ipadx=10, ipady=0)
+        self.MOTOR_CHOICE.grid(column = 1, row = 0, ipadx=10, ipady=0)
+        self.CTL_OK.grid(column = 3, row = 0, ipadx=20, ipady=0)
+        self.speed_ctl_frame.grid(column = 0 , row = 2, ipadx=20, ipady=0)
+        self.Speed.grid(column=1, row = 3, ipadx=20, ipady=0)
+        self.inputSpeed.grid(column = 2, row = 3, ipadx=20, ipady=0)
+        self.duration.grid(column = 1, row = 4, ipadx=25, ipady=0 )
+        self.ramping.grid(column = 2, row = 4, ipadx=20, ipady=0 )
 
 class UI_UART_CTL:
     def __init__(self,root):
