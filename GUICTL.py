@@ -17,6 +17,8 @@ class UI_Motor_CTL_Mode:
         self.UI_Motor_Mode_Config()
         self.UI_Motor_Speed_Frame()
         self.UI_Motor_Speed_Control_Config()
+        self.UI_Motor_Torque_Frame()
+        self.UI_Motor_Torque_Control_Config()
         self.UI_PUT_MOTOR_MODE_FRAME()
 
     def UI_Motor_Mode_Frame(self):
@@ -24,6 +26,9 @@ class UI_Motor_CTL_Mode:
     
     def UI_Motor_Speed_Frame(self):
         self.speed_ctl_frame = ttk.LabelFrame(self.mode_frame, text = "Speed Control")
+    
+    def UI_Motor_Torque_Frame(self):
+        self.torque_ctl_frame = ttk.LabelFrame(self.mode_frame, text = "Torque/Current Control")
 
     def UI_Motor_Mode_Config(self):
         self.mode_choose = ttk.Label(self.mode_frame,text = 'Select Motor Control Mode :')
@@ -31,24 +36,68 @@ class UI_Motor_CTL_Mode:
         self.motor = tk.StringVar(self.root)
         self.motor.set(self.MODE)
         self.MOTOR_CHOICE = ttk.OptionMenu(self.mode_frame,self.motor,self.MODE[0],*self.MODE)
-        self.CTL_OK = ttk.Button(self.mode_frame, text = "OK")
+        self.CTL_OK = ttk.Button(self.mode_frame, text = "OK", command = self.mode_determine)
     
     def UI_Motor_Speed_Control_Config(self):
-        self.Speed = ttk.Label(self.speed_ctl_frame, text = "Target Speed")
-        self.inputSpeed = tk.Text(self.speed_ctl_frame, height=1, width=5, bg = "light cyan", state = "normal")
-        self.duration = ttk.Label(self.speed_ctl_frame, text = "Durations" )
-        self.ramping  = tk.Text(self.speed_ctl_frame,height=1, width=5, bg = "light cyan", state = "normal" )
+        self.Speed = ttk.Label(self.speed_ctl_frame, text = "Target Speed",state = "disabled")
+        self.inputSpeed = tk.Text(self.speed_ctl_frame, height=1, width=5, bg = "light cyan", state = "disabled")
+        self.duration = ttk.Label(self.speed_ctl_frame, text = "Durations",state = "disabled" )
+        self.ramping  = tk.Text(self.speed_ctl_frame,height=1, width=5, bg = "light cyan", state = "disabled" )
+        self.Exec = ttk.Button(self.speed_ctl_frame,text = "Execute Ramp", state = "disabled")
+    
+    def UI_Motor_Torque_Control_Config(self):
+         self.Torque = ttk.Label(self.torque_ctl_frame, text = "Target Iq: ")
+         self.inputTorque = tk.Text(self.torque_ctl_frame, height=1, width=5, bg = "light cyan", state = "disabled" )
+         self.torqueDuration = ttk.Label(self.torque_ctl_frame,text = "Durations" )
+         self.torqueRamping = tk.Text(self.torque_ctl_frame,height=1, width=5, bg = "light cyan", state = "disabled" )
+         self.ExecTorqueRamp = ttk.Button(self.torque_ctl_frame, text = "Execute Ramp", state = "disabled")
 
     def UI_PUT_MOTOR_MODE_FRAME(self):
-        self.mode_frame.grid(column=0,row=100,padx=30, pady=30)
-        self.mode_choose.grid(column = 0, row = 0, ipadx=10, ipady=0)
-        self.MOTOR_CHOICE.grid(column = 1, row = 0, ipadx=10, ipady=0)
-        self.CTL_OK.grid(column = 3, row = 0, ipadx=20, ipady=0)
-        self.speed_ctl_frame.grid(column = 0 , row = 2, ipadx=20, ipady=0)
-        self.Speed.grid(column=1, row = 3, ipadx=20, ipady=0)
-        self.inputSpeed.grid(column = 2, row = 3, ipadx=20, ipady=0)
-        self.duration.grid(column = 1, row = 4, ipadx=25, ipady=0 )
-        self.ramping.grid(column = 2, row = 4, ipadx=20, ipady=0 )
+        #Choosing Control Mode
+        self.mode_frame.grid(column=0,row=100)
+        self.mode_choose.grid(column = 0, row = 0)
+        self.MOTOR_CHOICE.grid(column = 1, row = 0)
+        self.CTL_OK.grid(column = 3, row = 0)
+        #Speed Control 
+        self.speed_ctl_frame.grid(column = 0 , row = 2, padx= 10, pady = 10)
+        self.Speed.grid(column=1, row = 3, ipadx=5, ipady = 5)
+        self.inputSpeed.grid(column = 2, row = 3, ipadx=8, ipady = 0)
+        self.duration.grid(column = 1, row = 4,ipadx=11, ipady = 5 )
+        self.ramping.grid(column = 2, row = 4, ipadx=8, ipady = 0  )
+        self.Exec.grid(column = 2, row =6, ipadx=8, ipady=0)
+        #Torque Control
+        self.torque_ctl_frame.grid(column = 0, row = 10, padx= 10, pady = 10 )
+        self.Torque.grid(column = 1, row = 3, ipadx=5, ipady = 5)
+        self.inputTorque.grid(column = 2, row = 3, ipadx=8, ipady = 0 )
+        self.torqueDuration.grid(column = 1, row = 4,ipadx=11, ipady = 5 )
+        self.torqueRamping.grid(column = 2, row = 4, ipadx=8, ipady = 0)
+        self.ExecTorqueRamp.grid(column = 2, row =6, ipadx=8, ipady=0)
+    
+    def mode_determine(self):
+        if "Speed Mode" in self.motor.get():
+            self.Exec["state"] = "active"
+            self.inputSpeed["state"] = "normal"
+            self.ramping["state"] = "normal"
+            self.Speed["state"] = "normal"
+            self.duration["state"] = "normal"
+            self.inputTorque["state"] = "disabled"
+            self.torqueRamping["state"] = "disabled"
+            self.ExecTorqueRamp["state"] = "disabled"
+            self.Torque["state"] = "disabled"
+            self.torqueDuration["state"] = "disabled"
+            print("1")
+        elif "Torque Mode" in self.motor.get():
+            self.Exec["state"] = "disable"
+            self.inputSpeed["state"] = "disabled"
+            self.ramping["state"] = "disabled"
+            self.Speed["state"] = "disabled"
+            self.duration["state"] = "disabled"
+            self.inputTorque["state"] = "normal"
+            self.torqueRamping["state"] = "normal"
+            self.ExecTorqueRamp["state"] = "active"
+            self.Torque["state"] = "normal"
+            self.torqueDuration["state"] = "normal"
+            print("2")
 
 class UI_UART_CTL:
     def __init__(self,root):
