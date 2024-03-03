@@ -27,10 +27,14 @@ class UI_Motor_CTL_Mode:
         self.UI_MOTOR_CTL_TEMPERATURE()
         self.UI_MOTOR_TEMPERATURE()
         self.UI_MOTOR_STATUS()
+        self.UI_Motor_Show_Speed()
+        self.UI_Motor_Show_Current()   #show analog value of current
         self.UI_Motor_Plot_Speed()
-        self.UI_Motor_Plot_Speed()
+        self.UI_Motor_Plot_Iq()
         self.UI_START_MOTOR()
         self.UI_STOP_MOTOR()
+        self.UI_Show_Operation_Time()
+        self.UI_Motor_Control_Console_Log()
         self.UI_PUT_MOTOR_MODE_FRAME()
 
     def UI_Motor_Mode_Frame(self):
@@ -91,6 +95,12 @@ class UI_Motor_CTL_Mode:
     def UI_MOTOR_STATUS(self):
         return 0
     
+    def UI_Motor_Show_Speed(self):
+        return 0 
+    
+    def UI_Motor_Show_Current(self):
+        return 0
+    
     def UI_Motor_Plot_Speed(self):
         return 0
     
@@ -101,6 +111,12 @@ class UI_Motor_CTL_Mode:
         return 0
     
     def UI_STOP_MOTOR(self):
+        return 0
+    
+    def UI_Show_Operation_Time(self):
+        return 0
+    
+    def UI_Motor_Control_Console_Log(self):
         return 0
 
     def UI_PUT_MOTOR_MODE_FRAME(self):
