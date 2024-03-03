@@ -1,5 +1,6 @@
 # https://www.section.io/engineering-education/how-to-perform-threading-timer-in-python/
 # https://medium.com/greedygame-engineering/an-elegant-way-to-run-periodic-tasks-in-python-61b7c477b679
+# https://maldus512.medium.com/how-to-setup-correctly-an-application-with-python-and-tkinter-107c6bc5a45
 
 
 import threading, time, signal
