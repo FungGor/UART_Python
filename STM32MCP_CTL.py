@@ -136,6 +136,7 @@ def STM32MCP_queueIsEmpty():
 #  
 # @return  None
 def STM32MCP_enqueueMsg(txMsg, sizeMsg):
+    #linear linked list with first in first out structure 
     if (STM32MCP_getQueueSize() <= STM32MCP_Lib.STM32MCP_MAXIMUM_NUMBER_OF_NODE):
         tempPtr = STM32MCP_Lib.STM32MCP_txNode_t()
         tempPtr.txMsg = txMsg
