@@ -108,15 +108,3 @@ class STM32MCP_FIFO_Queue:
                     self.STM32MCP_tailPtr.next = tempPtr
                     self.STM32MCP_tailPtr = tempPtr
                 self.STM32MCP_queueSize = self.STM32MCP_queueSize + 1
-
-        def STM32MCP_dequeueMsg(self):
-            tempPtr = STM32MCP_Lib.STM32MCP_txNode_t()
-            if self.STM32MCP_headPtr == None:
-                return None
-            else:
-                tempPtr = self.STM32MCP_headPtr
-                self.STM32MCP_headPtr = self.STM32MCP_headPtr.next
-                self.STM32MCP_queueSize = self.STM32MCP_queueSize - 1
-                if (self.STM32MCP_queueSize == None):
-                    self.STM32MCP_headPtr = None
-                    self.STM32MCP_tailPtr = None
