@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from uart_protocol import UART_SCAN, UART_SETTING
+
 class UI_INIT:
     def __init__(self):
         self.root = tk.Tk()
@@ -23,6 +24,17 @@ class UI_Motor_CTL_Mode:
         self.UI_Motor_Torque_Control_Config()
         self.UI_Motor_Torque_PID_Frame()
         self.UI_Motor_Torque_Control_PID_Config()
+        self.UI_MOTOR_CTL_TEMPERATURE()
+        self.UI_MOTOR_TEMPERATURE()
+        self.UI_MOTOR_STATUS()
+        self.UI_Motor_Show_Speed()
+        self.UI_Motor_Show_Current()   #show analog value of current
+        self.UI_Motor_Plot_Speed()
+        self.UI_Motor_Plot_Iq()
+        self.UI_START_MOTOR()
+        self.UI_STOP_MOTOR()
+        self.UI_Show_Operation_Time()
+        self.UI_Motor_Control_Console_Log()
         self.UI_PUT_MOTOR_MODE_FRAME()
 
     def UI_Motor_Mode_Frame(self):
@@ -73,6 +85,39 @@ class UI_Motor_CTL_Mode:
         self.Current_Kp = tk.Text(self.torque_pid_frame, height=1, width=5, bg = "light cyan",state = "disabled")
         self.Current_I  = ttk.Label(self.torque_pid_frame,text = "KI",state = "disabled")
         self.Current_KI = tk.Text(self.torque_pid_frame,height=1, width=5, bg = "light cyan",state = "disabled")
+    
+    def UI_MOTOR_CTL_TEMPERATURE(self):
+        return 0 
+    
+    def UI_MOTOR_TEMPERATURE(self):
+        return 0
+    
+    def UI_MOTOR_STATUS(self):
+        return 0
+    
+    def UI_Motor_Show_Speed(self):
+        return 0 
+    
+    def UI_Motor_Show_Current(self):
+        return 0
+    
+    def UI_Motor_Plot_Speed(self):
+        return 0
+    
+    def UI_Motor_Plot_Iq(self):
+        return 0
+    
+    def UI_START_MOTOR(self):
+        return 0
+    
+    def UI_STOP_MOTOR(self):
+        return 0
+    
+    def UI_Show_Operation_Time(self):
+        return 0
+    
+    def UI_Motor_Control_Console_Log(self):
+        return 0
 
     def UI_PUT_MOTOR_MODE_FRAME(self):
         #Choosing Control Mode
