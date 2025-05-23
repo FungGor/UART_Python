@@ -6,7 +6,7 @@ class UI_INIT:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title('STM32 Motor Control Console')
-        self.root.geometry("1500x700")
+        self.root.geometry("1700x700")
         self.root.resizable(True,True)
         self.root.iconbitmap(bitmap = 'motor.ico')
 
@@ -203,7 +203,7 @@ class UI_UART_CTL:
         self.send = ttk.Button(self.uart_msg, text ="SEND", command=self.uart_msg_send, state='disabled')
 
     def UI_UART(self):
-        self.uart_frame.grid(column = 0, row=0, padx=50, pady=30)
+        self.uart_frame.grid(column = 0, row=0, padx=100, pady=30)
         self.uart_com_port.grid(column = 0, row = 1, ipadx=8, ipady= 0)
         self.uart_com_rate.grid(column = 0, row = 0, ipadx=8, ipady= 0)
         self.baud_choices.grid(column = 1, row = 0, ipadx=10, ipady= 0)
@@ -262,3 +262,11 @@ class UI_UART_CTL:
     def uart_msg_send(self):
         print(self.cmd.get())
         self.STM32_UART.uartWrite(self.cmd.get())
+
+class MOTOR_OPERATION:
+    def __init__(self,root):
+        self.root = root
+        self.UI_MOTOR_OPERATION_FRAME()
+        self.UI_START_MOTOR()
+        self.UI_STOP_MOTOR()
+        self.UI_RESET_ERROR()

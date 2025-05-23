@@ -1,6 +1,8 @@
 #This library implements the functions for controllling the STM32 Motor Driver (Applicable for F1xxx and F4xxx Series) 
 import STM32MCP_Lib
+import numpy as np
 import timer_thread_control
+from STM32MCP_Lib import STM32MCP_MAXIMUM_NUMBER_OF_NODE
 
 
 #Object referencing to the first motor controller register attribute
@@ -11,7 +13,7 @@ STM32MCP_CBs = STM32MCP_Lib.STM32MCP_CBs_t()
 #define UART Configuration Parameters 
 #Create UART Objects (Register UART)
 UART_PORT  = "COM3"
-BAUD_RATE  = 9600
+BAUD_RATE  = 115200
 PARITY     = 'NONE'
 STOPBITS   = 1
 BYTE_SIZE  = 8
@@ -27,124 +29,141 @@ heartbeatManager = STM32MCP_Lib.STM32MCP_timerManager_t()
 
 rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t()
 
-#STM32MCP Queue Linked List Pointer
-STM32MCP_headPtr = STM32MCP_Lib.STM32MCP_txNode_t(None,0,None)
-STM32MCP_tailPtr = STM32MCP_Lib.STM32MCP_txNode_t(None,0,None)
-STM32MCP_queueSize = 0
+#STM32MCP Queue Linked List Pointer as global variable
+#STM32MCP_headPtr = STM32MCP_Lib.STM32MCP_txNode_t()
+#STM32MCP_tailPtr = STM32MCP_Lib.STM32MCP_txNode_t()
+#STM32MCP_queueSize = 0
+
 
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
 
-#Register value
-#Developers should modify the following data structures if they wish to use more or less registers
-STM32MCP_regTargetMotorVal = 0
-STM32MCP_refFlagsVal = [0,0,0,0]
-STM32MCP_regStatusVal = 0
-STM32MCP_regControlModeVal = 0
-STM32MCP_regTorqueReferenceVal = [0,0]
-STM32MCP_regFluxReferenceVal = [0,0]
-STM32MCP_regBusVoltageVal = [0,0]
-STM32MCP_regHeatSinkTemperatureVal = [0,0]
-STM32MCP_regMotorPowerVal = [0,0]
-STM32MCP_regSpeedMeasuredVal = [0,0,0,0]
-STM32MCP_regSpeedKP = [0,0]
-STM32MCP_regTorqueMeasuredVal = [0,0]
+class STM32MCP_CommunicationProtocol:
+        # @fn       STM32MCP_startCommunication
+        # @brief    It is used to start the communication
+        # @param    None
+        # @return   None
+        def STM32MCP_startCommunication():
+            if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE:
+                communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE
 
-#Array of Objects from STM32MCP_regAttribute_t
-FluxPayload = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_FLUX_REFERENCE_REG_ID, STM32MCP_Lib.STM32MCP_FLUX_REFERENCE_PAYLOAD_LENGTH,
-STM32MCP_regFluxReferenceVal, STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ | STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_WRITE)
-
-TorquePayload = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_TORQUE_REFERENCE_REG_ID, STM32MCP_Lib.STM32MCP_TORQUE_REFERENCE_PAYLOAD_LENGTH,
-STM32MCP_regTorqueReferenceVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ | STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_WRITE )
-
-TargetMotor = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_TARGET_MOTOR_REG_ID, STM32MCP_Lib.STM32MCP_TARGET_MOTOR_PAYLOAD_LENGTH,
-STM32MCP_regTargetMotorVal, STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ | STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_WRITE)
-
-STM32_FLAG = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_STATUS_REG_ID, STM32MCP_Lib.STM32MCP_STATUS_PAYLOAD_LENGTH,
-STM32MCP_regStatusVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ)
-
-STM32_STATUS = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_CONTROL_MODE_REG_ID, STM32MCP_Lib.STM32MCP_CONTROL_MODE_PAYLOAD_LENGTH,
-STM32MCP_regControlModeVal, STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ | STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_WRITE)
-
-MOTOR_VOLTAGE = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_BUS_VOLTAGE_REG_ID, STM32MCP_Lib.STM32MCP_BUS_VOLTAGE_PAYLOAD_LENGTH,
-STM32MCP_regBusVoltageVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ)
-
-MOTOR_TEMPERATURE = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_HEATSINK_TEMPERATURE_REG_ID, STM32MCP_Lib.STM32MCP_HEATSINK_TEMPERATURE_PAYLOAD_LENGTH,
-STM32MCP_regHeatSinkTemperatureVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ)
-
-MOTOR_POWER = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_MOTOR_POWER_REG_ID, STM32MCP_Lib.STM32MCP_MOTOR_POWER_PAYLOAD_LENGTH,
-STM32MCP_regMotorPowerVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ)
-
-MOTOR_SPEED = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_SPEED_MEASURED_REG_ID, STM32MCP_Lib.STM32MCP_SPEED_MEASURED_PAYLOAD_LENGTH,
-STM32MCP_regSpeedMeasuredVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ)
-
-STM32_Iq = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_TORQUE_MEASURED_REG_ID, STM32MCP_Lib.STM32MCP_TORQUE_MEASURED_PAYLOAD_LENGTH, 
-STM32MCP_regTorqueMeasuredVal,STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ)
-
-MOTOR_KP = STM32MCP_Lib.STM32MCP_regAttribute_t(STM32MCP_Lib.STM32MCP_SPEED_KP_REG_ID, STM32MCP_Lib.STM32MCP_SPEED_KP_PAYLOAD_LENGTH,
-STM32MCP_regSpeedKP, STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_READ | STM32MCP_Lib.STM32MCP_REGISTER_PERMIT_WRITE)
-
-STM32MCP_REG_ATTRIBUTE = []
-STM32MCP_REG_ATTRIBUTE.append(TargetMotor)
-STM32MCP_REG_ATTRIBUTE.append(MOTOR_VOLTAGE)
-STM32MCP_REG_ATTRIBUTE.append(MOTOR_SPEED)
-STM32MCP_REG_ATTRIBUTE.append(MOTOR_TEMPERATURE)
-STM32MCP_REG_ATTRIBUTE.append(STM32_Iq)
-STM32MCP_REG_ATTRIBUTE.append(STM32_STATUS)
+        # @fn       STM32MCP_closeCommunication
+        # @brief    It is used to stop the communication
+        # @param    None
+        # @return   None
+        def STM32MCP_closeCommunication():
+            if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
+                communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
+                #STM32MCP_emptyQueue()
 
 
-# @fn       STM32MCP_initQueue
-#
-# @brief    To get set the head and tailPtr
-#
-# @param    None
-def STM32MCP_initQueue():
-    STM32MCP_headPtr = None
-    STM32MCP_tailPtr = None
-    STM32MCP_queueSize = 0
+class STM32MCP_FIFO_Queue:
+        # @fn      STM32MCP Queue Initialization
+        def __init__(self):
+            # @brief    It is used to initialize the queue
+            # @param    None
+            self.STM32MCP_headPtr = None
+            self.STM32MCP_tailPtr = None
+            self.STM32MCP_queueSize = 0
+
+        # @fn       STM32MCP_initQueue
+        # @brief    To get set the head and tailPtr
+        # @param    None
+        def STM32MCP_initQueue(self):
+            self.STM32MCP_headPtr = None
+            self.STM32MCP_tailPtr = None
+            self.STM32MCP_queueSize = 0
+
+        # @fn         STM32MCP_getQueueSize
+        # @brief      To get the current size of the queue
+        # @param      None
+        # @return     The size of the queue
+        def STM32MCP_getQueueSize(self):
+            return self.STM32MCP_queueSize
+
+        # @fn      STM32MCP_queueIsEmpty 
+        # @brief   To check if he txMsg queue is empty
+        # @param   None
+        # @return  None
+        def STM32MCP_queueIsEmpty(self):
+            if (self.STM32MCP_headPtr == None & self.STM32MCP_tailPtr == None):
+                return 0x01
+            else:
+                return 0x00
+
+        # @fn      STM32MCP_enqueueMsg
+        # @param   txMsg  The memory address of the fist byte of uart tx message
+        #          size   The size of the uart tx message in number of bytes 
+        # @return  None
+        def STM32MCP_enqueueMsg(self,txMsg, sizeMsg):
+            if self.STM32MCP_getQueueSize() <= STM32MCP_MAXIMUM_NUMBER_OF_NODE:
+                STM32MCP_tempPtr = STM32MCP_Lib.STM32MCP_txNode_t(txMsg, sizeMsg, None)
+                if self.STM32MCP_tailPtr is None:
+                    self.STM32MCP_headPtr = STM32MCP_tempPtr
+                    self.STM32MCP_tailPtr = STM32MCP_tempPtr
+                else:
+                    self.STM32MCP_tailPtr.next = STM32MCP_tempPtr
+                    self.STM32MCP_tailPtr = STM32MCP_tempPtr
+                self.STM32MCP_queueSize = self.STM32MCP_queueSize + 1
+            else:
+                #Throw Exception Handler 
+                #STM32MCP_CBs->exMsgCb(STM32MCP_QUEUE_OVERLOAD);
+                #free(txMsg); 
+                print("Queue is full, cannot enqueue message")
+
+        # @fn      STM32_dequeueMsg
+        # @brief   It is used for dequeuing the txMsg Queue 
+        # @return  None
+        def STM32MCP_dequeueMsg(self):
+            if self.STM32MCP_headPtr is None:
+                return None
+            self.STM32MCP_headPtr = self.STM32MCP_headPtr.next
+            if self.STM32MCP_headPtr is None:
+                self.STM32MCP_tailPtr = None
+            self.STM32MCP_queueSize = self.STM32MCP_queueSize - 1
+
+        # @fn      STM32MCP_emptyQueue
+        # @brief   It is used for emptying the txMsg queue
+        # @return  None
+        def STM32MCP_emptyQueue(self):
+            while self.STM32MCP_queueIsEmpty() == 0x00:
+                self.STM32MCP_dequeueMsg()
+
+        def STM32MCP_showMsgQueue(self):
+            STM32MCP_currPtr = self.STM32MCP_headPtr
+            while STM32MCP_currPtr is not None:
+                STM32MCP_currPtr = STM32MCP_currPtr.next
 
 
-# @fn         STM32MCP_getQueueSize
-#
-# @brief      To get the current size of the queue
-#
-# @param      None
-# 
-# @return     The size of the queue
-def STM32MCP_getQueueSize():
-    return STM32MCP_queueSize
+class Packet:
+        # @fn     STM32MCP_calCheckSum
+        # @brief  It is used to calculate th checksum
+        # @param  msg : the encoded txMsg used tocalculate the checksum
+        #         size: the size of the uart txMsg in number of bytes
+        def calCheckSum(msg, size):
+            total = 0
+            n = 0
+            while (n != size):
+                total = total + msg[n]
+                n = n + 1
+            return (total & 0xFF) + ((total >> 8) & 0xFF)
 
 
-# @fn      STM32MCP_queueIsEmpty
-# 
-# @brief   To check if he txMsg queue is empty
-#
-# @param   None
-#
-# @return  None
-def STM32MCP_queueIsEmpty():
-    if (STM32MCP_headPtr == None & STM32MCP_tailPtr == None):
-        return 0x01
-    else:
-        return 0x00
-
-
-# @fn      STM32MCP_enqueueMsg
-#
-# @param   txMsg  The memory address of the fist byte of uart tx message
-#          size   The size of the uart tx message in number of bytes
-#  
-# @return  None
-def STM32MCP_enqueueMsg(txMsg, sizeMsg):
-    if (STM32MCP_getQueueSize() <= STM32MCP_Lib.STM32MCP_MAXIMUM_NUMBER_OF_NODE):
-        tempPtr = STM32MCP_Lib.STM32MCP_txNode_t()
-        tempPtr.txMsg = txMsg
-        tempPtr.size  = sizeMsg
-        tempPtr.next  = None
-        if(STM32MCP_tailPtr == None):
-            STM32MCP_headPtr = tempPtr
-            STM32MCP_tailPtr = tempPtr
-        else:
-            STM32MCP_tailPtr.next = tempPtr
-            STM32MCP_tailPtr = tempPtr
-        STM32MCP_queueSize = STM32MCP_queueSize + 1
+class Packet_Send:
+        # @fn      STM32MCP_getRegisterFrame
+        # @brief   It is used to read a value from a relevant motor control
+        #          variable. See Get register frame. 
+        # @param   motorID:   The motor that will be selected
+        #          regID:     The register that you want to read
+        def STM32MCP_getRegisterFrame(motorID, regID):
+            if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
+                txFrame = np.zeros((STM32MCP_Lib.STM32MCP_GET_REGISTER_FRAME_PAYLOAD_LENGTH+3),dtype=np.uint8)
+                txFrame[0] = motorID | STM32MCP_Lib.STM32MCP_GET_REGISTER_FRAME_ID
+                txFrame[1] = STM32MCP_Lib.STM32MCP_GET_REGISTER_FRAME_PAYLOAD_LENGTH
+                txFrame[2] = regID
+                txFrame[3] = Packet.STM32MCP_calCheckSum(txFrame,3)
+                #Insert it into the queue
+                if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty():
+                    STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame,4)
+                else:
+                    STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame,4)
