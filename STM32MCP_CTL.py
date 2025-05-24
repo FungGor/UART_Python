@@ -97,7 +97,13 @@ class STM32MCP_FIFO_Queue:
         # @return  None
         def STM32MCP_enqueueMsg(self,txMsg, sizeMsg):
             if (self.STM32MCP_getQueueSize() <= STM32MCP_Lib.STM32MCP_MAXIMUM_NUMBER_OF_NODE):
-                tempPtr = STM32MCP_Lib.STM32MCP_txNode_t()
+                tempPtr = STM32MCP_Lib.STM32MCP_txNode_t() #Create the new node
+                # @brief   To set the txMsg and sizeMsg in the new node
+                # @param   txMsg  The memory address of the first byte of uart tx message
+                #          size   The size of the uart tx message in number of bytes
+                # @return  None
+                # @note    The txMsg is a pointer to the first byte of the message
+                #          The sizeMsg is the size of the message in number of bytes
                 tempPtr.txMsg = txMsg
                 tempPtr.size  = sizeMsg
                 tempPtr.next  = None
@@ -108,3 +114,27 @@ class STM32MCP_FIFO_Queue:
                     self.STM32MCP_tailPtr.next = tempPtr
                     self.STM32MCP_tailPtr = tempPtr
                 self.STM32MCP_queueSize = self.STM32MCP_queueSize + 1
+
+        # @fn      STM32MCP_dequeueMsg
+        # @brief   To dequeue the first message in the queue (FIFO)
+        # @param   None
+        # @return  The memory address of the first byte of the dequeued message
+        def STM32MCP_dequeueMsg(self):
+            if(self.STM32MCP_headPtr == None):
+                return None
+            else:
+                tempPtr = self.STM32MCP_headPtr 
+                self.STM32MCP_headPtr = self.STM32MCP_headPtr.next
+                if(self.STM32MCP_headPtr == None):
+                    self.STM32MCP_tailPtr = None
+                self.STM32MCP_queueSize = self.STM32MCP_queueSize - 1
+                #Remove the reference to the dequeued node to help with garbage collection
+                tempPtr.next = None
+
+        #@fn     STM32MCP_emptyQueue
+        #@brief  To empty all the messages in the queue
+        #@param  None
+        #@return None
+        def STM32MCP_emptyQueue(self):
+            while(self.STM32MCP_queueIsEmpty() == 0x00):
+                self.STM32MCP_dequeueMsg() 
