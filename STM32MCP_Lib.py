@@ -306,9 +306,9 @@ class STM32MCP_txNode_t:
 #            payloadLength: The expected payload length of the data
 class STM32MCP_rxMsgObj_t:
     def __init__(self, rxMsgBuf, currIndex, payloadLength):
-        self.rxMsgBuf = rxMsgBuf
-        self.currIndex = currIndex
-        self.payloadlength = payloadLength
+        self.rxMsgBuf = rxMsgBuf   #Should be a bytes or bytearray object
+        self.currIndex = currIndex #Integer
+        self.payloadlength = payloadLength #Integer
 
 
 # @Structure STM32MCP_CBs_t

@@ -7,19 +7,28 @@ from STM32MCP_Lib import STM32MCP_MAXIMUM_NUMBER_OF_NODE
 
 #Object referencing to the first motor controller register attribute
 regAttribute = STM32MCP_Lib.STM32MCP_regAttribute_t()
-
 STM32MCP_CBs = STM32MCP_Lib.STM32MCP_CBs_t()
 
 #define UART Configuration Parameters 
 #Create UART Objects (Register UART)
-UART_PORT  = "COM3"
-BAUD_RATE  = 115200
-PARITY     = 'NONE'
-STOPBITS   = 1
-BYTE_SIZE  = 8
-TIMEOUT    = None
-uart_Event = None
-uart = STM32MCP_Lib.STM32MCP_uartManager_t(UART_PORT,BAUD_RATE,PARITY,STOPBITS,BYTE_SIZE,TIMEOUT,uart_Event)
+UART_PARAM = {
+    "PORT": "COM3",
+    "BAUD_RATE": 115200,
+    "PARITY": 'NONE',
+    "STOPBITS": 1,
+    "BYTE_SIZE": 8,
+    "TIMEOUT": None,
+    "uart_Event": None
+}
+uart = STM32MCP_Lib.STM32MCP_uartManager_t(
+    port=UART_PARAM["PORT"],
+    baudrate=UART_PARAM["BAUD_RATE"],
+    parity=UART_PARAM["PARITY"],
+    stopbits=UART_PARAM["STOPBITS"],
+    bytesize=UART_PARAM["BYTE_SIZE"],
+    timeout=UART_PARAM["TIMEOUT"],
+    uart_Event=UART_PARAM["uart_Event"]
+)
 
 # define the timer for STM32MCP Protocol
 # @ Objects : timerManager:     Normal timer counting for data transmission
@@ -114,6 +123,10 @@ class STM32MCP_FIFO_Queue:
                     self.STM32MCP_tailPtr.next = tempPtr
                     self.STM32MCP_tailPtr = tempPtr
                 self.STM32MCP_queueSize = self.STM32MCP_queueSize + 1
+            else:
+                print("STM32MCP_enqueueMsg: Queue is full, cannot enqueue message")
+                txMsg = None
+                return None
 
         # @fn      STM32MCP_dequeueMsg
         # @brief   To dequeue the first message in the queue (FIFO)
@@ -138,3 +151,26 @@ class STM32MCP_FIFO_Queue:
         def STM32MCP_emptyQueue(self):
             while(self.STM32MCP_queueIsEmpty() == 0x00):
                 self.STM32MCP_dequeueMsg() 
+
+
+class PayLoadHandler: 
+    def checkSum(msg: bytes, size: int) -> int:
+       total = 0
+       n = 0
+       while n!= size:
+           total += msg[n]
+           n += 1
+       return (total & 0xFF) + ((total >> 8) & 0xFF)
+    
+
+class STM32MCP_FlowControlManager: 
+    def __init__(self):
+        self.rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t()
+    
+    def STM32MCP_resetFlowControlHandler(self):
+        self.rxObj.currIndex = 0x00
+        self.rxObj.payloadlength = 0xFF
+    
+    def STM32MCP_flowControlHandler(self, receivedByte: int):
+        if self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH-1:
+            return None
