@@ -174,3 +174,75 @@ class STM32MCP_FlowControlManager:
     def STM32MCP_flowControlHandler(self, receivedByte: int):
         if self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH-1:
             return None
+        
+
+# @fn      STM32MCP_controlEscooterBehavior
+# @brief   To control the escooter behavior
+# @param   behaviorID  The ID of the behavior to be controlled
+# @return  None
+def STM32MCP_controlEscooterBehavior(behaviorID : int):
+    if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
+        length = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH+3
+        txFrame = bytearray(length)
+        txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.ESCOOTER_BEHAVIOR_ID)
+        txFrame[1] = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH
+        txFrame[2] = behaviorID
+        txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
+
+        #Enqueue the message to the txMsg queue
+        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0X01:
+            #timerManager.STM32MCP_startTimer()
+            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            #uartManager.STM32MCP_uartSendMsg(txFrame, length)
+        else:
+            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+
+
+# @fn      STM32MCP_setDynamicCurrent
+# @brief   It is used for changing the IQ instantly in order to change the Motor's speed
+# @param   throttlePercent:  Throttle percentage (0-100)
+#          IQValue:          instant Current (s16A)
+# @return  None
+def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
+    if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
+        length = STM32MCP_Lib.STM32MCP_SET_DYNAMIC_TORQUE_FRAME_PAYLOAD_LENGTH + 3
+        txFrame = bytearray(length)
+        txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.STM32MCO_SET_DYNAMIC_TORQUE_FRAME_ID)
+        txFrame[1] = STM32MCP_Lib.STM32MCP_SET_DYNAMIC_TORQUE_FRAME_PAYLOAD_LENGTH
+        txFrame[2] = throttlePercent  & 0xFF
+        txFrame[3] = (throttlePercent >> 8) & 0xFF
+        txFrame[4] = (throttlePercent >> 16) & 0xFF
+        txFrame[5] = (throttlePercent >> 24) & 0xFF
+        txFrame[6] = IQValue & 0xFF
+        txFrame[7] = (IQValue >> 8) & 0xFF
+        txFrame[8] = (IQValue >> 16) & 0xFF
+        txFrame[9] = (IQValue >> 24) & 0xFF
+        txFrame[10] = PayLoadHandler.checkSum(txFrame, length-1)
+        #Enqueue the message to the txMsg queue
+        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0X01:
+            #timerManager.STM32MCP_startTimer()
+            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            #uartManager.STM32MCP_uartSendMsg(txFrame, length)
+        else:
+            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+
+
+# @fn      ON_BOARD_DIAGNOSIS_BEHAVIOUR
+# @brief   To control the on-board diagnosis behavior
+# @param   behaviorID  The ID of the behavior to be controlled
+# @return  None
+def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
+    if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
+        length = STM32MCP_Lib.ON_BOARD_DIAGNOSIS_PAYLOAD_LENGTH + 3
+        txFrame = bytearray(length)
+        txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.ON_BOARD_DIAGNOSIS_MODE_FRAME_ID)
+        txFrame[1] = STM32MCP_Lib.ON_BOARD_DIAGNOSIS_PAYLOAD_LENGTH
+        txFrame[2] = behaviorID
+        txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
+        #Enqueue the message to the txMsg queue
+        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0X01:
+            #timerManager.STM32MCP_startTimer()
+            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            #uartManager.STM32MCP_uartSendMsg(txFrame, length)
+        else:
+            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
