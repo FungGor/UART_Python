@@ -22,7 +22,7 @@ import serial.tools.list_ports
 # STOP BITS   = STOPBITS_1
 # PARITY      = UART_PARITY_NONE
 
-class UART_SETTING:
+class UART_Protocol():
      def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol):
         self.portID = portID
         self.baudrate = baudrate

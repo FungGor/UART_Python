@@ -17,3 +17,9 @@
 #stm32Config = UI_UART_CTL(stm32MCP.root)
 #stm32MCPCTL = UI_Motor_CTL_Mode(stm32MCP.root)
 #stm32MCP.root.mainloop()
+import periodic_communication
+import STM32MCP_CTL
+periodic_communication.run_periodic_communication()
+
+while True:
+   pass# Keep the main thread alive to allow periodic communication to run

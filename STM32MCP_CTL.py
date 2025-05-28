@@ -1,49 +1,11 @@
 #This library implements the functions for controllling the STM32 Motor Driver (Applicable for F1xxx and F4xxx Series) 
 import STM32MCP_Lib
+import uart_protocol
 import numpy as np
-
-
-#Object referencing to the first motor controller register attribute
-regAttribute = STM32MCP_Lib.STM32MCP_regAttribute_t()
-STM32MCP_CBs = STM32MCP_Lib.STM32MCP_CBs_t()
-
-#define UART Configuration Parameters 
-#Create UART Objects (Register UART)
-UART_PARAM = {
-    "PORT": "COM3",
-    "BAUD_RATE": 115200,
-    "PARITY": 'NONE',
-    "STOPBITS": 1,
-    "BYTE_SIZE": 8,
-    "TIMEOUT": None,
-    "uart_Event": None
-}
-uart = STM32MCP_Lib.STM32MCP_uartManager_t(
-    port=UART_PARAM["PORT"],
-    baudrate=UART_PARAM["BAUD_RATE"],
-    parity=UART_PARAM["PARITY"],
-    stopbits=UART_PARAM["STOPBITS"],
-    bytesize=UART_PARAM["BYTE_SIZE"],
-    timeout=UART_PARAM["TIMEOUT"],
-    uart_Event=UART_PARAM["uart_Event"]
-)
-
-# define the timer for STM32MCP Protocol
-# @ Objects : timerManager:     Normal timer counting for data transmission
-#           : heartbeatManager: Check the connection's stability
-timerManager = STM32MCP_Lib.STM32MCP_timerManager_t()
-heartbeatManager = STM32MCP_Lib.STM32MCP_timerManager_t()
-
-rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t()
-
-#STM32MCP Queue Linked List Pointer as global variable
-#STM32MCP_headPtr = STM32MCP_Lib.STM32MCP_txNode_t()
-#STM32MCP_tailPtr = STM32MCP_Lib.STM32MCP_txNode_t()
-#STM32MCP_queueSize = 0
-
 
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
+
 
 class STM32MCP_CommunicationProtocol:
         # @fn       STM32MCP_startCommunication
@@ -173,6 +135,28 @@ class STM32MCP_FlowControlManager:
         if self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH-1:
             return None
         
+
+def STM32MCP_Init():
+    UART_PARAM = {
+     "PORT": "COM3",
+     "BAUD_RATE": 115200,
+     "PARITY": 'NONE',
+     "STOPBITS": 1,
+     "BYTE_SIZE": 8,
+     "TIMEOUT": None,
+     "uart_protocol": None
+    }
+
+    uart = STM32MCP_Lib.STM32MCP_uartManager_t(
+    port=UART_PARAM["PORT"],
+    baudrate=UART_PARAM["BAUD_RATE"],
+    parity=UART_PARAM["PARITY"],
+    stopbits=UART_PARAM["STOPBITS"],
+    bytesize=UART_PARAM["BYTE_SIZE"],
+    timeout=UART_PARAM["TIMEOUT"],
+    protocol=UART_PARAM["uart_protocol"]
+    )
+    return uart
 
 # @fn      STM32MCP_controlEscooterBehavior
 # @brief   To control the escooter behavior
