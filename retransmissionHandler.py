@@ -1,5 +1,6 @@
 import threading
 import time
+import signals
 
 RETRANSMISSION_INTERVAL = 0.5  # Interval in seconds for retransmission
 

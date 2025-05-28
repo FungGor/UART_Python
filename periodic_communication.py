@@ -4,6 +4,8 @@
 
 import threading
 import time
+import STM32MCP_CTL
+import STM32MCP_Lib
 
 TIMER_INTERVAL = 0.5  # Interval in seconds for periodic communication
 
