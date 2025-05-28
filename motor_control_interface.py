@@ -11,9 +11,9 @@
 # Reference : https://www.youtube.com/watch?v=u3NnzRIwjH8&list=PLtVUYRe-Z-meHdTlzqCHGPjZvnL2VZVn8&index=2
 #             https://www.pythontutorial.net/tkinter/
 
-from GUICTL import UI_INIT,UI_UART_CTL,UI_Motor_CTL_Mode
+#from GUICTL import UI_INIT,UI_UART_CTL,UI_Motor_CTL_Mode
 
-stm32MCP = UI_INIT()
-stm32Config = UI_UART_CTL(stm32MCP.root)
-stm32MCPCTL = UI_Motor_CTL_Mode(stm32MCP.root)
-stm32MCP.root.mainloop()
+#stm32MCP = UI_INIT()
+#stm32Config = UI_UART_CTL(stm32MCP.root)
+#stm32MCPCTL = UI_Motor_CTL_Mode(stm32MCP.root)
+#stm32MCP.root.mainloop()

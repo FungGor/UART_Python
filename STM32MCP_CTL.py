@@ -1,8 +1,6 @@
 #This library implements the functions for controllling the STM32 Motor Driver (Applicable for F1xxx and F4xxx Series) 
 import STM32MCP_Lib
 import numpy as np
-import timer_thread_control
-from STM32MCP_Lib import STM32MCP_MAXIMUM_NUMBER_OF_NODE
 
 
 #Object referencing to the first motor controller register attribute
@@ -190,7 +188,7 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
         txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
 
         #Enqueue the message to the txMsg queue
-        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0X01:
+        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
             STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
@@ -219,7 +217,7 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
         txFrame[9] = (IQValue >> 24) & 0xFF
         txFrame[10] = PayLoadHandler.checkSum(txFrame, length-1)
         #Enqueue the message to the txMsg queue
-        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0X01:
+        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
             STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
@@ -240,7 +238,7 @@ def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
         txFrame[2] = behaviorID
         txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
         #Enqueue the message to the txMsg queue
-        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0X01:
+        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
             STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)

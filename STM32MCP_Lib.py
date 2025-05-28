@@ -11,7 +11,6 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 import uart_protocol
-import timer_thread_control
 
 STM32_NUMBER_OF_REGISTERS  = 0x0A
 STM32MCP_NUMBER_OF_MOTORS  = 0x01
