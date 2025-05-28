@@ -2,6 +2,7 @@
 import STM32MCP_Lib
 import uart_protocol
 import numpy as np
+import retransmissionHandler
 
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
