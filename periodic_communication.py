@@ -7,11 +7,13 @@ import time
 import STM32MCP_CTL
 import STM32MCP_Lib
 
-TIMER_INTERVAL = 0.5  # Interval in seconds for periodic communication
+TIMER_INTERVAL = 3  # Interval in seconds for periodic communication
 
 def periodic_communication():
     while True:
-       print("Periodic communication task started.")
+       STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
+       STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_2)
+       STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_3)
        time.sleep(TIMER_INTERVAL)  # Simulate some processing time
     # Here you would implement the actual communication logic
     # For example, sending a request to the STM32 motor controller

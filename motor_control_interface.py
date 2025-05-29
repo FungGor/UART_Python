@@ -19,7 +19,25 @@
 #stm32MCP.root.mainloop()
 import periodic_communication
 import STM32MCP_CTL
+import threading
+
+# 1) Test for the Queue functionality
+STM32MCP_CTL.MsgQueueInit()  # Initialize the message queue
+
+# 2) Test for UART Functionality
+
+#create a stop event
+stop_event = threading.Event()
+# 3) Test the periodic communication functionality --> Simulates hardware timer interrupt(Done)
 periodic_communication.run_periodic_communication()
 
-while True:
-   pass# Keep the main thread alive to allow periodic communication to run
+
+try:
+   # Keep the main thread alive, but allow for graceful exit with Ctrl+C
+   while not stop_event.is_set():
+       pass
+except KeyboardInterrupt:
+   print("Exiting periodic communication...")
+   STM32MCP_CTL.showQueueStatus()  # Show the queue status before exiting
+   STM32MCP_CTL.showAllQueueMessages()  # Show all messages in the queue
+   stop_event.set()

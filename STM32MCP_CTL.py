@@ -6,7 +6,7 @@ import retransmissionHandler
 
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
-
+queue = None # Global variable to hold the queue instance
 
 class STM32MCP_CommunicationProtocol:
         # @fn       STM32MCP_startCommunication
@@ -56,7 +56,7 @@ class STM32MCP_FIFO_Queue:
         # @param   None
         # @return  None
         def STM32MCP_queueIsEmpty(self):
-            if (self.STM32MCP_headPtr == None & self.STM32MCP_tailPtr == None):
+            if ( (self.STM32MCP_headPtr == None) and (self.STM32MCP_tailPtr == None) ):
                 return 0x01
             else:
                 return 0x00
@@ -67,7 +67,7 @@ class STM32MCP_FIFO_Queue:
         # @return  None
         def STM32MCP_enqueueMsg(self,txMsg, sizeMsg):
             if (self.STM32MCP_getQueueSize() <= STM32MCP_Lib.STM32MCP_MAXIMUM_NUMBER_OF_NODE):
-                tempPtr = STM32MCP_Lib.STM32MCP_txNode_t() #Create the new node
+                tempPtr = STM32MCP_Lib.STM32MCP_txNode_t(txMsg, sizeMsg) #Create the new node
                 # @brief   To set the txMsg and sizeMsg in the new node
                 # @param   txMsg  The memory address of the first byte of uart tx message
                 #          size   The size of the uart tx message in number of bytes
@@ -105,6 +105,20 @@ class STM32MCP_FIFO_Queue:
                 #Remove the reference to the dequeued node to help with garbage collection
                 tempPtr.next = None
 
+        # @fn      STM32MCP_showQueue
+        # @brief   To show the contents of the queue (Just for debugging purpose)
+        # @param   None
+        def STM32MCP_showQueue(self):
+            currentPtr = self.STM32MCP_headPtr
+            if currentPtr is None:
+                print("Queue is empty")
+                return
+            print("Queue contents:")
+            while currentPtr is not None:
+                print(f"Message: { [hex(b) for b in currentPtr.txMsg] }, Size: {currentPtr.size}")
+                currentPtr = currentPtr.next
+            print("End of Queue")
+
         #@fn     STM32MCP_emptyQueue
         #@brief  To empty all the messages in the queue
         #@param  None
@@ -113,6 +127,26 @@ class STM32MCP_FIFO_Queue:
             while(self.STM32MCP_queueIsEmpty() == 0x00):
                 self.STM32MCP_dequeueMsg() 
 
+def MsgQueueInit():
+    # Initialize the message queue
+    global queue
+    queue = STM32MCP_FIFO_Queue()
+    queue.STM32MCP_initQueue()
+    print("STM32MCP FIFO Queue Initialized")
+    print("Queue Size: ", queue.STM32MCP_getQueueSize())
+    print("Queue is Empty: ", queue.STM32MCP_queueIsEmpty())
+
+def showQueueStatus():
+    global queue
+    print("Queue Size after queuing: ", queue.STM32MCP_getQueueSize())
+    print("Queue is Empty: ", queue.STM32MCP_queueIsEmpty())
+
+def showAllQueueMessages():
+    global queue
+    if queue.STM32MCP_queueIsEmpty() == 0x01:
+        print("Queue is empty, no messages to show")
+    else:
+        queue.STM32MCP_showQueue()
 
 class PayLoadHandler: 
     def checkSum(msg: bytes, size: int) -> int:
@@ -229,3 +263,15 @@ def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
             STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+
+def Test_Datagram(behaviorID: int):
+    global queue # Make sure to declare it as global if you want to modify or use it
+    length = STM32MCP_Lib.STM32MCP_TEST_DATAGRAM_PAYLOAD_LENGTH + 3
+    txFrame = bytearray(length)
+    txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.STM32MCP_TEST_DATAGRAM_FRAME_ID)
+    txFrame[1] = STM32MCP_Lib.STM32MCP_TEST_DATAGRAM_PAYLOAD_LENGTH
+    txFrame[2] = behaviorID
+    txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
+    #Enqueue the message to the txMsg queue
+    queue.STM32MCP_enqueueMsg(txFrame, length)
+    print("Test Datagram: ", [hex(b) for b in txFrame])
