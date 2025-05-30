@@ -24,7 +24,7 @@ import threading
 # 1) Test for the Queue functionality
 STM32MCP_CTL.MsgQueueInit()  # Initialize the message queue
 
-# 2) Test for UART Functionality
+# 2) Test for UART Functionality (Connect to the STM32 Nucleo Board via UART)
 
 #create a stop event
 stop_event = threading.Event()
@@ -37,7 +37,13 @@ try:
    while not stop_event.is_set():
        pass
 except KeyboardInterrupt:
+   print("\n")
+   STM32MCP_CTL.showQueueStatus()
+   print("\n")
    print("Exiting periodic communication...")
+   STM32MCP_CTL.clearMsg()
+   print("\n")
    STM32MCP_CTL.showQueueStatus()  # Show the queue status before exiting
+   print("\n")
    STM32MCP_CTL.showAllQueueMessages()  # Show all messages in the queue
    stop_event.set()

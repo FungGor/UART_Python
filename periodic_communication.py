@@ -7,7 +7,7 @@ import time
 import STM32MCP_CTL
 import STM32MCP_Lib
 
-TIMER_INTERVAL = 0.02  # Interval in seconds for periodic communication
+TIMER_INTERVAL = 1 # Interval in seconds for periodic communication
 
 def periodic_communication():
     while True:

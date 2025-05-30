@@ -113,11 +113,9 @@ class STM32MCP_FIFO_Queue:
             if currentPtr is None:
                 print("Queue is empty")
                 return
-            print("Queue contents:")
             while currentPtr is not None:
                 print(f"Message: { [hex(b) for b in currentPtr.txMsg] }, Size: {currentPtr.size}")
                 currentPtr = currentPtr.next
-            print("End of Queue")
 
         #@fn     STM32MCP_emptyQueue
         #@brief  To empty all the messages in the queue
@@ -136,17 +134,21 @@ def MsgQueueInit():
     print("Queue Size: ", queue.STM32MCP_getQueueSize())
     print("Queue is Empty: ", queue.STM32MCP_queueIsEmpty())
 
+# Test functions to demonstrate the queue functionality
 def showQueueStatus():
     global queue
     print("Queue Size after queuing: ", queue.STM32MCP_getQueueSize())
     print("Queue is Empty: ", queue.STM32MCP_queueIsEmpty())
 
+#Test functions to demonstrate the queue functionality
 def showAllQueueMessages():
     global queue
-    if queue.STM32MCP_queueIsEmpty() == 0x01:
-        print("Queue is empty, no messages to show")
-    else:
-        queue.STM32MCP_showQueue()
+    queue.STM32MCP_showQueue()
+
+# Test functions to demonstrate the queue functionality
+def clearMsg():
+    global queue
+    queue.STM32MCP_emptyQueue()
 
 class PayLoadHandler: 
     def checkSum(msg: bytes, size: int) -> int:
@@ -198,6 +200,7 @@ def STM32MCP_Init():
 # @param   behaviorID  The ID of the behavior to be controlled
 # @return  None
 def STM32MCP_controlEscooterBehavior(behaviorID : int):
+    global queue
     if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
         length = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH+3
         txFrame = bytearray(length)
@@ -207,12 +210,12 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
         txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
 
         #Enqueue the message to the txMsg queue
-        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0x01:
+        if queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
-            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            queue.STM32MCP_enqueueMsg(txFrame, length)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
-            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            queue.STM32MCP_enqueueMsg(txFrame, length)
 
 
 # @fn      STM32MCP_setDynamicCurrent
@@ -221,6 +224,7 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
 #          IQValue:          instant Current (s16A)
 # @return  None
 def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
+    global queue
     if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
         length = STM32MCP_Lib.STM32MCP_SET_DYNAMIC_TORQUE_FRAME_PAYLOAD_LENGTH + 3
         txFrame = bytearray(length)
@@ -236,12 +240,12 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
         txFrame[9] = (IQValue >> 24) & 0xFF
         txFrame[10] = PayLoadHandler.checkSum(txFrame, length-1)
         #Enqueue the message to the txMsg queue
-        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0x01:
+        if queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
-            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            queue.STM32MCP_enqueueMsg(txFrame, length)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
-            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            queue.STM32MCP_enqueueMsg(txFrame, length)
 
 
 # @fn      ON_BOARD_DIAGNOSIS_BEHAVIOUR
@@ -249,7 +253,8 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
 # @param   behaviorID  The ID of the behavior to be controlled
 # @return  None
 def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
-    if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
+    global queue
+    if communicationState == queue.STM32MCP_COMMUNICATION_ACTIVE:
         length = STM32MCP_Lib.ON_BOARD_DIAGNOSIS_PAYLOAD_LENGTH + 3
         txFrame = bytearray(length)
         txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.ON_BOARD_DIAGNOSIS_MODE_FRAME_ID)
@@ -257,12 +262,12 @@ def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
         txFrame[2] = behaviorID
         txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
         #Enqueue the message to the txMsg queue
-        if STM32MCP_FIFO_Queue.STM32MCP_queueIsEmpty() == 0x01:
+        if queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
-            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            queue.STM32MCP_enqueueMsg(txFrame, length)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
-            STM32MCP_FIFO_Queue.STM32MCP_enqueueMsg(txFrame, length)
+            queue.STM32MCP_enqueueMsg(txFrame, length)
 
 def Test_Datagram(behaviorID: int):
     global queue # Make sure to declare it as global if you want to modify or use it
@@ -275,3 +280,4 @@ def Test_Datagram(behaviorID: int):
     #Enqueue the message to the txMsg queue
     queue.STM32MCP_enqueueMsg(txFrame, length)
     print("Test Datagram: ", [hex(b) for b in txFrame])
+    print("\n")
