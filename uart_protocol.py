@@ -49,34 +49,22 @@ class UART_Protocol():
          print("Attempting to initialize Serial Protocol.....")
          try:
                self.protocol = serial.Serial(
-               port=self.portID,
-               baudrate=self.baudrate,
-               parity=self.stopbits,
-               stopbits=self.stopbits,
-               bytesize=self.bytesize,
-               timeout=self.timeout
-               )
+                 port=self.portID,
+                 baudrate=self.baudrate,
+                 parity=self.parity,
+                 stopbits=self.stopbits,
+                 bytesize=self.bytesize,
+                 timeout=self.timeout
+               )             
                self.status_connect = 1
                time.sleep(0.3)
+               return True
          except serial.serialutil.SerialException as e:
             print(f"Error : {e}")
             self.status_connect = -1
             return False
-         
-         if self.status_connect == 1:
-            #self.protocol object is created from serial.Serial()
-            self.protocol.parity = self.parity
-            self.protocol.baudrate = self.baudrate
-            self.protocol.port = self.portID
-            self.protocol.stopbits = self.stopbits
-            time.sleep(0.3)
-            if self.uartStatus() is True:
-               self.protocol.open()
-            self.protocol.flush()
-            self.protocol.flushInput()
-            return True
 
-     def uartStatus(self) -> string:
+     def connectionStatus(self) -> string:
             message = ''
             #What's the status of Serial Connection??
             if self.status_connect == -1:
@@ -86,10 +74,10 @@ class UART_Protocol():
                message += 'Serial Port Closed'
                
             if self.status_connect == 1:
-                  try:
-                     message += '\nSerial Status: ' + str(self.protocol.is_open())               
-                  except Exception as e:
-                     message += 'Serial Fault'         
+               try:
+                  message += '\nSerial Status: ' + str(self.protocol.is_open)
+               except Exception as e:
+                   message+='Fatal Fault'                     
             return message
 
      def uartFaultHandler(self):
@@ -103,12 +91,29 @@ class UART_Protocol():
          self.protocol.write(self.byte)
      
      def uartClose(self) -> bool:
-         self.protocol.close()
-         return True
-    
+         print("Closing Serial Port..........")
+         if self.status_connect == 1:
+             try:
+                 self.protocol.close()
+                 print("Serial Port is successfully closed")
+                 self.status_connect = 0
+                 return True
+             except Exception as e:
+                 print("Serial Closure Fatal Error!")
+                 print(f"Fault: ",e)
+                 self.status_connect = -1
+                 return False
+         
+         if self.status_connect == 0:
+             print("Serial Port is already closed")
+         
+         if self.status_connect == -1:
+             print("Warning : Serial Faults")
+         return False
+                               
      def uartStatus(self) -> bool:
          #Gets the state of serial port, whether is open
-         return self.protocol.is_open()
+         return self.protocol.is_open
       
      def uart_Parity_Config(self):
          match self.parity:

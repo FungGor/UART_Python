@@ -11,20 +11,27 @@ uartObj = STM32MCP_CTL.STM32MCP_Init()
 # 2 -- Send a command to the STM32 device
 # 3 -- Check Status of UART Communication
 # 4 -- Stop UART Communication
+InputFinished = 0
+try:
+    global Command
+    while True:
+        if InputFinished == 0:
+            Command = int(input("Enter command (1: Init, 2: Open, 3: Check, 4: Stop): "))
+            InputFinished = 1
+        elif InputFinished == 1:
+            if Command == 1:
+                print("isInitialized ? :", uartObj.uartOpen())
+                InputFinished = 0
+            elif Command == 2:
+                print("isOpened ? ", uartObj.connectionStatus())
+                InputFinished = 0
 
-Command = int(input("Enter command (1: Start, 2: Send, 3: Check, 4: Stop): "))
-
-match Command:
-    case 1:
-        print("Starting UART Communication...")
+except KeyboardInterrupt:
+    print("Loop Finished")
     
-    case 2:
-        print("Sending command to STM32 device...")
-
-    case 3:
-        print("Checking status of UART Communication...")
     
-    case 4:
-        print("Stopping UART Communication...")
+        
+
+
 
 
