@@ -11,6 +11,7 @@ import serial
 import serial.serialutil
 import serial.tools.list_ports
 from serial.serialutil import SerialException
+import serial.tools.list_ports
 import time
 import logging
 import string
@@ -44,18 +45,17 @@ class UART_Protocol():
         self.timeout = timeout
         self.protocol = protocol
         self.status_connect = status_connect
+      
+     def listPorts(self):
+         port_list = serial.tools.list_ports.comports()
+         print("Listing ports......")
+         for com_port, port_des, hwid in port_list:
+             print(f"Port: {com_port}, Description: {port_des}, Hardware ID: {hwid}")
      
-     def uartOpen(self) -> bool:
+     def uartInit(self) -> bool:
          print("Attempting to initialize Serial Protocol.....")
          try:
-               self.protocol = serial.Serial(
-                 port=self.portID,
-                 baudrate=self.baudrate,
-                 parity=self.parity,
-                 stopbits=self.stopbits,
-                 bytesize=self.bytesize,
-                 timeout=self.timeout
-               )             
+               self.protocol = serial.Serial()                            
                self.status_connect = 1
                time.sleep(0.3)
                return True
@@ -63,6 +63,21 @@ class UART_Protocol():
             print(f"Error : {e}")
             self.status_connect = -1
             return False
+      
+     def uartOpen(self) -> bool:
+         if self.status_connect == 1:
+            self.protocol.port=self.portID
+            self.protocol.baudrate=self.baudrate
+            self.protocol.parity=self.parity
+            self.protocol.stopbits=self.stopbits
+            self.protocol.bytesize=self.bytesize
+            self.protocol.timeout=self.timeout
+            time.sleep(0.3)
+            self.protocol.open()
+            return True
+         else:
+            print("Serial Port is Not Initialized")
+         return False
 
      def connectionStatus(self) -> string:
             message = ''
