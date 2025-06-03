@@ -11,6 +11,7 @@ import serial
 import serial.serialutil
 import serial.tools.list_ports
 from serial.serialutil import SerialException
+import serial.threaded
 import time
 import logging
 import string
@@ -95,8 +96,9 @@ class UART_Protocol():
                    message+='Fatal Fault'                     
             return message
 
-     def uartFaultHandler(self):
+     def uartFaultHandler(self) -> bool:
          print("How to Handle the Fault?")
+         return False
                       
      def uartRead(self):
         self.protocol.readline()
