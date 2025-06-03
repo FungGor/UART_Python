@@ -11,7 +11,6 @@ import serial
 import serial.serialutil
 import serial.tools.list_ports
 from serial.serialutil import SerialException
-import serial.tools.list_ports
 import time
 import logging
 import string
@@ -49,8 +48,9 @@ class UART_Protocol():
      def listPorts(self):
          port_list = serial.tools.list_ports.comports()
          print("Listing ports......")
-         for com_port, port_des, hwid in port_list:
-             print(f"Port: {com_port}, Description: {port_des}, Hardware ID: {hwid}")
+         for com_port, port_des, hwid in sorted(port_list):
+             print("{}: {} [{}]".format(com_port,port_des,hwid))
+             print("\n")
      
      def uartInit(self) -> bool:
          print("Attempting to initialize Serial Protocol.....")
