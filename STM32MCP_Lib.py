@@ -354,8 +354,8 @@ def STM32MCP_CBs_t():
 #            uartRead:  Called when the application wants to read from the uart peripheral
 #            uartClose: Called when the application wants to terminate the uart peripheral
 class STM32MCP_uartManager_t(uart_protocol.UART_Protocol):
-    def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol):
-        super().__init__(portID, baudrate, parity, stopbits, bytesize, timeout, protocol)
+    def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol, status_connect):
+        super().__init__(portID, baudrate, parity, stopbits, bytesize, timeout, protocol, status_connect)
     
     def checkConnection(self):
         isConnected = super().uartStatus()

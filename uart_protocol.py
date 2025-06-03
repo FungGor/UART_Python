@@ -2,9 +2,18 @@
 # https://pyserial.readthedocs.io/en/latest/pyserial_api.html
 # https://sites.google.com/site/greenmechatroniks/code-garage/rs-232-pyserial-in-python
 
+# https://pyserial.readthedocs.io/en/latest/pyserial_api.html --> Threading Required
+# Ensure the Libraies' functionalities, then implement Logging Library
+
+#Low Level Peripheral which access Hardware Level Layer
 from base64 import encode
 import serial
+import serial.serialutil
 import serial.tools.list_ports
+from serial.serialutil import SerialException
+import time
+import logging
+import string
 
 # @Class UART
 # @brief     It defines a set of member unctions that the server
@@ -23,7 +32,7 @@ import serial.tools.list_ports
 # PARITY      = UART_PARITY_NONE
 
 class UART_Protocol():
-     def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol):
+     def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol, status_connect):
         self.portID = portID
         self.baudrate = baudrate
         self.parity = parity
@@ -34,16 +43,58 @@ class UART_Protocol():
         self.bytesize = self.uart_BYTESIZE_Config()
         self.timeout = timeout
         self.protocol = protocol
+        self.status_connect = status_connect
+     
+     def uartOpen(self) -> bool:
+         print("Attempting to initialize Serial Protocol.....")
+         try:
+               self.protocol = serial.Serial(
+               port=self.portID,
+               baudrate=self.baudrate,
+               parity=self.stopbits,
+               stopbits=self.stopbits,
+               bytesize=self.bytesize,
+               timeout=self.timeout
+               )
+               self.status_connect = 1
+               time.sleep(0.3)
+         except serial.serialutil.SerialException as e:
+            print(f"Error : {e}")
+            self.status_connect = -1
+            return False
+         
+         if self.status_connect == 1:
+            #self.protocol object is created from serial.Serial()
+            self.protocol.parity = self.parity
+            self.protocol.baudrate = self.baudrate
+            self.protocol.port = self.portID
+            self.protocol.stopbits = self.stopbits
+            time.sleep(0.3)
+            if self.uartStatus() is True:
+               self.protocol.open()
+            self.protocol.flush()
+            self.protocol.flushInput()
+            return True
 
-     
-     def uartOpen(self):
-          self.protocol = serial.Serial()
-          self.protocol.parity = self.parity
-          self.protocol.baudrate = self.baudrate
-          self.protocol.port = self.portID
-          self.protocol.stopbits = self.stopbits
-          self.protocol.open()
-     
+     def uartStatus(self) -> string:
+            message = ''
+            #What's the status of Serial Connection??
+            if self.status_connect == -1:
+               message += 'Warning : Serial Connection Error'
+            
+            if self.status_connect == 0:
+               message += 'Serial Port Closed'
+               
+            if self.status_connect == 1:
+                  try:
+                     message += '\nSerial Status: ' + str(self.protocol.is_open())               
+                  except Exception as e:
+                     message += 'Serial Fault'         
+            return message
+
+     def uartFaultHandler(self):
+         print("How to Handle the Fault?")
+                      
      def uartRead(self):
         self.protocol.readline()
 
@@ -51,11 +102,13 @@ class UART_Protocol():
          self.byte = input.encode()
          self.protocol.write(self.byte)
      
-     def uartClose(self):
+     def uartClose(self) -> bool:
          self.protocol.close()
+         return True
     
-     def uartStatus(self):
-         return self.protocol.isOpen()
+     def uartStatus(self) -> bool:
+         #Gets the state of serial port, whether is open
+         return self.protocol.is_open()
       
      def uart_Parity_Config(self):
          match self.parity:
@@ -69,7 +122,7 @@ class UART_Protocol():
                 self.parity = serial.PARITY_MARK
             case 'SPACE':
                 self.parity = serial.PARITY_SPACE
-         print(self.parity)
+         print("Parity Bits : ",self.parity)
          return self.parity
       
      def uart_STOPBIT_Config(self):
@@ -80,7 +133,7 @@ class UART_Protocol():
               self.stopbits = serial.STOPBITS_ONE_POINT_FIVE
            case 2:
               self.stopbits = serial.STOPBITS_TWO
-         print(self.stopbits)
+         print("Stop Bits : ",self.stopbits)
          return self.stopbits
       
      def uart_BYTESIZE_Config(self):
@@ -93,7 +146,7 @@ class UART_Protocol():
                self.bytesize = serial.SEVENBITS
             case 8:
                self.bytesize = serial.EIGHTBITS
-         print(self.bytesize)
+         print("WORD LENGTH : ",self.bytesize)
          return self.bytesize
 
 

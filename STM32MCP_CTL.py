@@ -175,23 +175,25 @@ class STM32MCP_FlowControlManager:
 
 def STM32MCP_Init():
     UART_PARAM = {
-     "PORT": "COM3",
+     "PORT": "COM4",
      "BAUD_RATE": 115200,
      "PARITY": 'NONE',
      "STOPBITS": 1,
      "BYTE_SIZE": 8,
      "TIMEOUT": None,
-     "uart_protocol": None
+     "uart_protocol": None,
+     "connection_status" : 0
     }
 
     uart = STM32MCP_Lib.STM32MCP_uartManager_t(
-    port=UART_PARAM["PORT"],
+    portID=UART_PARAM["PORT"],
     baudrate=UART_PARAM["BAUD_RATE"],
     parity=UART_PARAM["PARITY"],
     stopbits=UART_PARAM["STOPBITS"],
     bytesize=UART_PARAM["BYTE_SIZE"],
     timeout=UART_PARAM["TIMEOUT"],
-    protocol=UART_PARAM["uart_protocol"]
+    protocol=UART_PARAM["uart_protocol"],
+    status_connect=UART_PARAM["connection_status"]
     )
     return uart
 
