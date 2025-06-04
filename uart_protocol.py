@@ -103,9 +103,14 @@ class UART_Protocol():
      def uartRead(self):
         self.protocol.readline()
 
-     def uartWrite(self,input):
-         self.byte = input.encode()
-         self.protocol.write(self.byte)
+     #Send it byte by byte
+     def uartWrite(self, data: bytearray) -> int:
+         data_bytes = 0
+         if self.protocol.is_open:
+            data_bytes = self.protocol.write(data)
+         else:
+             print("Warning : Serial Port is not available")
+         return data_bytes
      
      def uartClose(self) -> bool:
          print("Closing Serial Port..........")

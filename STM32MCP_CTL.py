@@ -271,7 +271,8 @@ def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
 
-def Test_Datagram(behaviorID: int):
+
+def Test_Datagram(behaviorID: int) -> bytearray:
     global queue # Make sure to declare it as global if you want to modify or use it
     length = STM32MCP_Lib.STM32MCP_TEST_DATAGRAM_PAYLOAD_LENGTH + 3
     txFrame = bytearray(length)
@@ -281,5 +282,6 @@ def Test_Datagram(behaviorID: int):
     txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
     #Enqueue the message to the txMsg queue
     queue.STM32MCP_enqueueMsg(txFrame, length)
-    print("Test Datagram: ", [hex(b) for b in txFrame])
-    print("\n")
+    #print("Test Datagram: ", [hex(b) for b in txFrame])
+    #print("\n")
+    return txFrame
