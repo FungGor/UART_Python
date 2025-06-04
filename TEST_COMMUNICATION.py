@@ -1,4 +1,4 @@
-#Scripts for UART Communication Testing
+#The script tests for UART's functionalities
 import periodic_communication
 import threading
 import STM32MCP_CTL

@@ -175,8 +175,58 @@ class UART_Protocol():
                self.bytesize = serial.EIGHTBITS
          print("WORD LENGTH : ",self.bytesize)
          return self.bytesize
+     
+     def take_serial_obj(self):
+         return self.protocol
+         
 
 
+InputFinished = 0
+DataNumber = 0
+Command = 0
+
+receivedBuffer = bytearray()
+
+def showAllReceivedBytes():
+    print("{} bytes received.".format(len(receivedBuffer)))
+    print(" ".join(f"{b:02X}" for b in receivedBuffer))
+
+#UART Rx Interrupt i.e. Threading
+#Better to create array to store incoming data
+class ByteReceiver(serial.threaded.Protocol):
+    def __init__(self):
+        super().__init__()
+    
+    def data_received(self, data):         
+         for b in data:
+             #print(f"Received byte: {b:02X}")
+             receivedBuffer.append(b)
+         
+         
+
+def startRxThread(ser,obj):
+    global Command
+    global InputFinished
+    with serial.threaded.ReaderThread(ser,ByteReceiver) as protocol:
+        print("Listening for bytes, Press Ctrl+C to exit")
+        try:
+            while True:
+               if InputFinished == 0:
+                    Command = int(input("Enter command (1: Send a Byte 0x01, 2: Send a Byte 0x02, 3:Show Message): "))
+                    InputFinished = 1
+               elif InputFinished == 1:
+                  if Command == 1:
+                    obj.uartWrite(bytearray([0x01]))
+                    InputFinished = 0
+                  elif Command == 2:
+                    obj.uartWrite(bytearray([0x02]))
+                    InputFinished = 0
+                  elif Command == 3:
+                    showAllReceivedBytes()
+                    InputFinished = 0
+        except KeyboardInterrupt:
+            print("Exiting RX ISR")
+         
 #Scanning the available ports
 class UART_SCAN():
    def __init__(self):
