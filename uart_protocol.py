@@ -201,6 +201,7 @@ class ByteReceiver(serial.threaded.Protocol):
          for b in data:
              #print(f"Received byte: {b:02X}")
              receivedBuffer.append(b)
+         showAllReceivedBytes()
          
          
 
@@ -211,19 +212,7 @@ def startRxThread(ser,obj):
         print("Listening for bytes, Press Ctrl+C to exit")
         try:
             while True:
-               if InputFinished == 0:
-                    Command = int(input("Enter command (1: Send a Byte 0x01, 2: Send a Byte 0x02, 3:Show Message): "))
-                    InputFinished = 1
-               elif InputFinished == 1:
-                  if Command == 1:
-                    obj.uartWrite(bytearray([0x01]))
-                    InputFinished = 0
-                  elif Command == 2:
-                    obj.uartWrite(bytearray([0x02]))
-                    InputFinished = 0
-                  elif Command == 3:
-                    showAllReceivedBytes()
-                    InputFinished = 0
+                pass
         except KeyboardInterrupt:
             print("Exiting RX ISR")
          

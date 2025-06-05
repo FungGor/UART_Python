@@ -7,13 +7,13 @@ import time
 import STM32MCP_CTL
 import STM32MCP_Lib
 
-TIMER_INTERVAL = 1 # Interval in seconds for periodic communication
+TIMER_INTERVAL = 3 # Interval in seconds for periodic communication
 
-def periodic_communication():
+def periodic_communication(serial):
     while True:
-       STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
-       STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_2)
-       STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_3)
+       datagram1 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
+       print("Test Datagram 1: ", [hex(b) for b in datagram1])
+       serial.uartWrite(bytearray([0x02]))
        time.sleep(TIMER_INTERVAL)  # Simulate some processing time
      # Here you would implement the actual communication logic
      # For example, sending a request to the STM32 motor controller
@@ -21,6 +21,6 @@ def periodic_communication():
      # This is a placeholder for the actual communication logic.
      # Simulate communication delay
 
-def run_periodic_communication():
-   timer_thread = threading.Thread(target=periodic_communication, daemon=True)
+def run_periodic_communication(serial):
+   timer_thread = threading.Thread(target=periodic_communication,args=(serial,), daemon=True)
    timer_thread.start()
