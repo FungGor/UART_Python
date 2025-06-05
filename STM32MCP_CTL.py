@@ -7,6 +7,7 @@ import retransmissionHandler
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
 queue = None # Global variable to hold the queue instance
+uart = None
 
 class STM32MCP_CommunicationProtocol:
         # @fn       STM32MCP_startCommunication
@@ -174,6 +175,7 @@ class STM32MCP_FlowControlManager:
         
 
 def STM32MCP_Init():
+    global uart
     UART_PARAM = {
      "PORT": "COM4",
      "BAUD_RATE": 115200,
@@ -197,6 +199,11 @@ def STM32MCP_Init():
     )
     return uart
 
+def STM32_SERIAL_PORT_INIT():
+    print("isInitialized ? :", uart.uartInit())
+    print("isOpened ? ", uart.uartOpen())
+    print("Status ? ",uart.connectionStatus())
+
 # @fn      STM32MCP_controlEscooterBehavior
 # @brief   To control the escooter behavior
 # @param   behaviorID  The ID of the behavior to be controlled
@@ -215,6 +222,7 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
         if queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
             queue.STM32MCP_enqueueMsg(txFrame, length)
+            uart.uartWrite(txFrame)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
@@ -245,6 +253,7 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
         if queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
             queue.STM32MCP_enqueueMsg(txFrame, length)
+            uart.uartWrite(txFrame)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
@@ -267,6 +276,7 @@ def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
         if queue.STM32MCP_queueIsEmpty() == 0x01:
             #timerManager.STM32MCP_startTimer()
             queue.STM32MCP_enqueueMsg(txFrame, length)
+            uart.uartWrite(txFrame)
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
@@ -282,6 +292,7 @@ def Test_Datagram(behaviorID: int) -> bytearray:
     txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
     #Enqueue the message to the txMsg queue
     queue.STM32MCP_enqueueMsg(txFrame, length)
+    uart.uartWrite(txFrame)
     #print("Test Datagram: ", [hex(b) for b in txFrame])
     #print("\n")
     return txFrame

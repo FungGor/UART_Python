@@ -15,6 +15,7 @@ import serial.threaded
 import time
 import logging
 import string
+import threading
 
 # @Class UART
 # @brief     It defines a set of member unctions that the server
@@ -182,11 +183,8 @@ class UART_Protocol():
 
 
 InputFinished = 0
-DataNumber = 0
 Command = 0
-
 receivedBuffer = bytearray()
-
 def showAllReceivedBytes():
     print("{} bytes received.".format(len(receivedBuffer)))
     print(" ".join(f"{b:02X}" for b in receivedBuffer))
@@ -215,7 +213,11 @@ def startRxThread(ser,obj):
                 pass
         except KeyboardInterrupt:
             print("Exiting RX ISR")
-         
+
+def runRxInterrupt(serial,uartRxThread):
+    rx_thread = threading.Thread(target=startRxThread, args=(serial, uartRxThread), daemon=True)
+    rx_thread.start()
+
 #Scanning the available ports
 class UART_SCAN():
    def __init__(self):
