@@ -3,11 +3,13 @@ import STM32MCP_Lib
 import uart_protocol
 import numpy as np
 import retransmissionHandler
+import motor_control
 
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
 queue = None # Global variable to hold the queue instance
 uart = None
+flowControl = None
 
 class STM32MCP_CommunicationProtocol:
         # @fn       STM32MCP_startCommunication
@@ -25,8 +27,8 @@ class STM32MCP_CommunicationProtocol:
         def STM32MCP_closeCommunication():
             if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
                 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
-                #STM32MCP_emptyQueue()
-
+                queue.STM32MCP_emptyQueue()
+                retransmissionHandler.stop_retransmission_thread()
 
 class STM32MCP_FIFO_Queue:
         # @fn      STM32MCP Queue Initialization
@@ -158,21 +160,7 @@ class PayLoadHandler:
        while n!= size:
            total += msg[n]
            n += 1
-       return (total & 0xFF) + ((total >> 8) & 0xFF)
-    
-
-class STM32MCP_FlowControlManager: 
-    def __init__(self):
-        self.rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t()
-    
-    def STM32MCP_resetFlowControlHandler(self):
-        self.rxObj.currIndex = 0x00
-        self.rxObj.payloadlength = 0xFF
-    
-    def STM32MCP_flowControlHandler(self, receivedByte: int):
-        if self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH-1:
-            return None
-        
+       return (total & 0xFF) + ((total >> 8) & 0xFF)      
 
 def STM32MCP_Init():
     global uart
@@ -198,11 +186,96 @@ def STM32MCP_Init():
     status_connect=UART_PARAM["connection_status"]
     )
     return uart
-
+    
 def STM32_SERIAL_PORT_INIT():
     print("isInitialized ? :", uart.uartInit())
     print("isOpened ? ", uart.uartOpen())
     print("Status ? ",uart.connectionStatus())
+
+class STM32MCP_FlowControlManager: 
+    def __init__(self):
+        self.rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t()
+        self.rxObj.currIndex = 0x00
+        self.rxObj.payloadlength = 0xFF
+        self.rxObj.rxMsgBuf = bytearray(STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH)
+    
+    # @fn     STM32MCP_resetFlowControlHandler
+    # @brief  It is used for resetting the current Index and payloadLength
+    # @param  receivedByte: The byte received from uart receiver
+    #         rxObj:        An object representing the received message and assosciate variables
+    def STM32MCP_resetFlowControlHandler(self):
+        self.rxObj.currIndex = 0x00
+        self.rxObj.payloadlength = 0xFF
+    
+    def STM32MCP_flowControlHandler(self, receivedByte: int):
+        global queue, retransmissionCount
+        if (self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH-1):
+            #Frame Process Starts
+            if(self.rxObj.currIndex == 0x00):
+                if (queue.STM32MCP_headPtr is not None):
+                    #Reset the timer Counter
+                    retransmissionHandler.stop_retransmission_thread()
+                    retransmissionHandler.start_retransmission_thread()
+                    if (receivedByte == 0xFF) or (receivedByte == 0xF0):
+                        self.rxObj.rxMsgBuf[self.rxObj.currIndex] = receivedByte
+                        self.rxObj.currIndex += 1
+                        #Waiting for transmission
+            #Payload Length Frame Processing
+            elif (self.rxObj.currIndex == 0x01):
+                #Reset the timer Counter
+                retransmissionHandler.stop_retransmission_thread()
+                retransmissionHandler.start_retransmission_thread()
+                self.rxObj.rxMsgBuf[self.rxObj.currIndex] = receivedByte
+                self.rxObj.payloadlength = self.rxObj.rxMsgBuf[self.rxObj.currIndex]
+                self.rxObj.currIndex += 1
+            #Data Frame Processing
+            elif (self.rxObj.currIndex < self.rxObj.payloadlength + 0x03):
+                #Reset the timer Counter
+                retransmissionHandler.stop_retransmission_thread()
+                retransmissionHandler.start_retransmission_thread()
+                self.rxObj.rxMsgBuf[self.rxObj.currIndex] = receivedByte
+                self.rxObj.currIndex += 1
+            #Checksum frame processing
+            if (self.rxObj.currIndex == self.rxObj.payloadlength + 0x03):
+                if (PayLoadHandler.checkSum(self.rxObj.rxMsgBuf, self.rxObj.payloadlength + 2) == receivedByte):
+                    if(self.rxObj.rxMsgBuf[0] == 0xF0):
+                        #Reset Timer
+                        retransmissionHandler.stop_retransmission_thread()
+                        #Receive Handler --> should be done in motor_control.py
+                        motor_control.motorcontrol_rxMsgCB(self.rxObj.rxMsgBuf,queue.STM32MCP_headPtr)
+                        #Next Transmission
+                        queue.STM32MCP_dequeueMsg()
+                        if(queue.STM32MCP_queueIsEmpty() is not 0x01):
+                            #Start The timer
+                            retransmissionHandler.start_retransmission_thread()
+                            if(queue.STM32MCP_headPtr is not None):
+                                uart.uartWrite(queue.STM32MCP_headPtr.txMsg)
+                            retransmissionCount = 0
+                    elif (self.rxObj.rxMsgBuf[0] == 0xFF):
+                        if(queue.STM32MCP_headPtr is not None):
+                            #Error Handler --> should be done in motor_control.py
+                            pass
+                        uart.uartWrite(queue.STM32MCP_headPtr.txMsg)
+                self.STM32MCP_resetFlowControlHandler()
+        else:
+            self.STM32MCP_resetFlowControlHandler()      
+
+def ECU_OBD_Protocol_Init():
+    global flowControl
+    #Initialize the Queue
+    MsgQueueInit()
+    flowControl = STM32MCP_FlowControlManager()
+    return flowControl
+
+def ECU_Protocol_Retransmission():
+    global queue
+    if (queue.STM32MCP_headPtr is not None):
+        retransmissionHandler.start_retransmission_thread()
+        uart.uartWrite(queue.STM32MCP_headPtr.txMsg)
+        flowControl.STM32MCP_resetFlowControlHandler()
+        retransmissionCount += 1
+        if(retransmissionCount > STM32MCP_Lib.STM32MCP_MAXIMUM_RETRANSMISSION_ALLOWANCE):
+            STM32MCP_CommunicationProtocol.STM32MCP_closeCommunication()
 
 # @fn      STM32MCP_controlEscooterBehavior
 # @brief   To control the escooter behavior
@@ -258,7 +331,6 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
 
-
 # @fn      ON_BOARD_DIAGNOSIS_BEHAVIOUR
 # @brief   To control the on-board diagnosis behavior
 # @param   behaviorID  The ID of the behavior to be controlled
@@ -280,7 +352,6 @@ def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
             #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
-
 
 def Test_Datagram(behaviorID: int) -> bytearray:
     global queue # Make sure to declare it as global if you want to modify or use it
