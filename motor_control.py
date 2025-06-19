@@ -80,3 +80,7 @@ def motorcontrol_rxMsgCB(rxMsg: bytearray, STM32MCP_txMsgNode):
             pass
     del rxPayload
     del txPayload
+
+def motorcontrol_showReceivedMessage(rxMsg: bytearray):
+    for i in range(len(rxMsg)):
+        print(f"Byte {i}: {hex(rxMsg[i])}")

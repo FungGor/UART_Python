@@ -202,7 +202,8 @@ class STM32MCP_FlowControlManager():
 
             if(self.rxObj.currIndex == self.rxObj.payloadlength + 0x03):
                 if(PayLoadHandler.checkSum(self.rxObj.rxMsgBuf, self.rxObj.payloadlength + 2) == receivedByte):
-                    print("Received Message: ", [hex(b) for b in self.rxObj.rxMsgBuf])
+                    #print("Received Message: ", [hex(b) for b in self.rxObj.rxMsgBuf])
+                    motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
                     self.rxObj.rxMsgBuf.clear()  # Clear the buffer after processing
                     self.STM32MCP_resetFlowControlHandler()
                 else:
