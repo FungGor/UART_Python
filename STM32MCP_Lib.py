@@ -10,8 +10,6 @@
 #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-import uart_protocol
-
 STM32_NUMBER_OF_REGISTERS  = 0x0A
 STM32MCP_NUMBER_OF_MOTORS  = 0x01
 
@@ -251,6 +249,24 @@ class ESCOOTER_BEHAVIOURS:
         ESCOOTER_BATTERY_VOLTAGE   =  0x0D
         ESCOOTER_OBD_MODE          =  0x0E
 
+class ECU_ERROR_CODE:
+    SYS_NORMAL_CODE               = 0xFF
+    BATTERY_VOLTAGE_ERROR_CODE    = 0x1A
+    BATTERY_TEMP_ERROR_CODE       = 0x1A
+    BMS_COMM_ERROR_CODE           = 0x1C
+    BATTERY_VOLTAGE_CRIT_LOW_CODE = 0x1E
+    GATE_DRIVER_ERROR_CODE        = 0x2C
+    MOSFET_ERROR_CODE             = 0x2E
+    PHASE_I_ERROR_CODE            = 0x2A
+    CONTROLLER_TEMP_ERROR_CODE    = 0x2F
+    HALL_SENSOR_ERROR_CODE        = 0x3A
+    MOTOR_TEMP_ERROR_CODE         = 0x3C
+    DASH_COMM_ERROR_CODE          = 0x0A
+    THROTTLE_ERROR_CODE           = 0x0C
+    BRAKE_ERROR_CODE              = 0x0E
+    SOFTWARE_ERROR_CODE           = 0x4A
+    SYS_FATAL_ERROR_CODE          = 0x0F
+
 # Structure STM32MCP_rxMsg
 # @brief     When the motor controller sends the received message back, it stores the message here
 # @data      rxMsg - The memory message to the received message, the size of the message is the second index rxMsg[1]
@@ -345,29 +361,6 @@ def STM32MCP_CBs_t():
     def erHandler():
         return 0
 
-
-# @Structure Inheritance Structure -- STM32MCP_uartManager_t 
-#            Parent class: UART_Protocol (Hardware Level)
-#            Child  class: STM32MCP_uartManager_t (Application Level)
-# @brief     It defines a set of function pointer that the server
-#            wants to point to the application functions
-# @data      uartOpen:  Called when the application wants to initialize the uart peripheral
-#            uartWrite: Called when the application wants to write to the uart peripheral
-#            uartRead:  Called when the application wants to read from the uart peripheral
-#            uartClose: Called when the application wants to terminate the uart peripheral
-class STM32MCP_uartManager_t(uart_protocol.UART_Protocol):
-    def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol, status_connect):
-        super().__init__(portID, baudrate, parity, stopbits, bytesize, timeout, protocol, status_connect)
-    
-    def checkConnection(self):
-        isConnected = super().uartStatus()
-        return isConnected
-    
-    def sysMsg(self):
-        if self.checkConnection == True: 
-            print ("COM PORT: ",self.portID)
-            print ("Baud rate: ",self.baudrate)
-            print ("Successfully connected !")
             
 
 # @Structure Inheritance Stucture -- STM32MCP_timerManager_t

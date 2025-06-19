@@ -12,11 +12,14 @@ def periodic_communication(serial):
     counter = 0
     while True:
        if counter%2 == 0:
-          datagram1 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
-          print("Test Datagram 1: ", [hex(b) for b in datagram1])       
+          #datagram1 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
+          #print("Test Datagram 1: ", [hex(b) for b in datagram1])
+          STM32MCP_CTL.TEST_DATA(0x01)       
        else:
-          datagram2 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_2)
-          print("Test Datagram 1: ", [hex(b) for b in datagram2])        
+          #datagram2 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_2)
+          #print("Test Datagram 1: ", [hex(b) for b in datagram2])
+          STM32MCP_CTL.TEST_DATA(0x02)     
+          pass   
        counter += 1
        time.sleep(TIMER_INTERVAL)  # Simulate some processing time
      # Here you would implement the actual communication logic

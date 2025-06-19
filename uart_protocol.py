@@ -13,9 +13,15 @@ import serial.tools.list_ports
 from serial.serialutil import SerialException
 import serial.threaded
 import time
-import logging
 import string
 import threading
+import STM32MCP_CTL
+
+flowControl = None
+#We will use the flow control handler from STM32MCP_CTL.py
+def protocolControlInit():
+    global flowControl
+    flowControl = STM32MCP_CTL.STM32MCP_FlowControlManager()
 
 # @Class UART
 # @brief     It defines a set of member unctions that the server
@@ -179,8 +185,31 @@ class UART_Protocol():
      
      def take_serial_obj(self):
          return self.protocol
-         
 
+def UART_Init():
+    UART_PARAM = {
+     "PORT": "COM4",
+     "BAUD_RATE": 115200,
+     "PARITY": 'NONE',
+     "STOPBITS": 1,
+     "BYTE_SIZE": 8,
+     "TIMEOUT": None,
+     "uart_protocol": None,
+     "connection_status" : 0
+    }
+
+    uartPtr = UART_Protocol(
+    portID=UART_PARAM["PORT"],
+    baudrate=UART_PARAM["BAUD_RATE"],
+    parity=UART_PARAM["PARITY"],
+    stopbits=UART_PARAM["STOPBITS"],
+    bytesize=UART_PARAM["BYTE_SIZE"],
+    timeout=UART_PARAM["TIMEOUT"],
+    protocol=UART_PARAM["uart_protocol"],
+    status_connect=UART_PARAM["connection_status"]
+    )
+    STM32MCP_CTL.STM32MCP_ptrUART_register(uartPtr)
+    return uartPtr
 
 InputFinished = 0
 Command = 0
@@ -191,18 +220,16 @@ def showAllReceivedBytes():
 
 #UART Rx Interrupt i.e. Threading
 #Better to create array to store incoming data
+fucked = 0xFF
 class ByteReceiver(serial.threaded.Protocol):
     def __init__(self):
         super().__init__()
+        self.buffer = bytearray()
     
-    def data_received(self, data):         
-         for b in data:
-             #print(f"Received byte: {b:02X}")
-             receivedBuffer.append(b)
-         showAllReceivedBytes()
-         
-         
-
+    def data_received(self, data):
+       flowControl.receiveBufferProcessing(data)      
+        
+                       
 def startRxThread(ser,obj):
     global Command
     global InputFinished

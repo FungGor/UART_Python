@@ -11,14 +11,17 @@ STM32MCP_CTL.MsgQueueInit()  # Initialize the message queue
 
 # 3) Test the periodic communication functionality --> Simulates hardware timer interrupt(Done)
 
+uart_protocol.protocolControlInit()
 
 # Initialize the UART communication1
-uartObj = STM32MCP_CTL.STM32MCP_Init()
+uartObj = uart_protocol.UART_Init()
 STM32MCP_CTL.STM32_SERIAL_PORT_INIT()
 
 #Starts UART Interrupt
 ser = uartObj.take_serial_obj()
 uart_protocol.runRxInterrupt(ser, uartObj)
+
+#Sends datagram periodically
 periodic_communication.run_periodic_communication(uartObj)
 
 #Equivalent to RTOS Start
