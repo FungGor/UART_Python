@@ -170,10 +170,6 @@ def STM32_SERIAL_PORT_INIT():
     print("isOpened ? ", uartPtr.uartOpen())
     print("Status ? ",uartPtr.connectionStatus())
 
-def printReceivedMessage(rxMsg):
-    print(rxMsg)
-
-
 class STM32MCP_FlowControlManager(): 
     def __init__(self):
         self.rxbuffer = bytearray()
