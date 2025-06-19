@@ -177,7 +177,6 @@ def printReceivedMessage(rxMsg):
 class STM32MCP_FlowControlManager(): 
     def __init__(self):
         self.rxbuffer = bytearray()
-        self.payload = bytearray()
         self.rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t(bytearray(STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH), 0x00, 0xFF)
         self.rxObj.rxMsgBuf.clear()
     
@@ -210,12 +209,12 @@ class STM32MCP_FlowControlManager():
                     print("Received Message: ", [hex(b) for b in self.rxObj.rxMsgBuf])
                     self.rxObj.rxMsgBuf.clear()  # Clear the buffer after processing
                     self.STM32MCP_resetFlowControlHandler()
+                else:
+                    print("Warning: CRC Error")
+                    self.rxObj.rxMsgBuf.clear()
+                    self.STM32MCP_resetFlowControlHandler()
         else:
             self.STM32MCP_resetFlowControlHandler()
-    
-    def datagram(self,payload):
-        for i in range(len(payload)):
-            self.payLoadHanderTest(payload[i])
 
     def receiveBufferProcessing(self,rx):
         self.rxbuffer.extend(rx)  # Append the received byte to the buffer
