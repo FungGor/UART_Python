@@ -188,7 +188,7 @@ class STM32MCP_FlowControlManager():
         self.rxObj.currIndex = 0x00
         self.rxObj.payloadlength = 0xFF
 
-    def payLoadHanderTest(self, receivedByte):
+    def flowControlHandler(self, receivedByte):
         if(self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH - 1):
             #Start Receiving Incoming Frame Now !!!
             if(self.rxObj.currIndex == 0x00):
@@ -220,7 +220,7 @@ class STM32MCP_FlowControlManager():
         self.rxbuffer.extend(rx)  # Append the received byte to the buffer
         while len(self.rxbuffer) > 1:  # Assuming you want to process after receiving 4 bytes
             for i in range(len(self.rxbuffer)):
-                self.payLoadHanderTest(self.rxbuffer[i])
+                self.flowControlHandler(self.rxbuffer[i])
             self.rxbuffer.clear()
             if len(self.rxbuffer) == 0:
                 break
