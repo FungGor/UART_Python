@@ -170,7 +170,7 @@ def STM32_SERIAL_PORT_INIT():
     print("isOpened ? ", uartPtr.uartOpen())
     print("Status ? ",uartPtr.connectionStatus())
 
-class STM32MCP_FlowControlManager(): 
+class STM32MCP_FlowControlHandler(): 
     def __init__(self):
         self.rxbuffer = bytearray()
         self.rxObj = STM32MCP_Lib.STM32MCP_rxMsgObj_t(bytearray(STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH), 0x00, 0xFF)
@@ -185,11 +185,15 @@ class STM32MCP_FlowControlManager():
         self.rxObj.payloadlength = 0xFF
 
     def flowControlHandler(self, receivedByte):
+        global retransmissionCount
         if(self.rxObj.currIndex < STM32MCP_Lib.STM32MCP_RX_MSG_BUFF_LENGTH - 1):
             #Start Receiving Incoming Frame Now !!!
             if(self.rxObj.currIndex == 0x00):
-                self.rxObj.rxMsgBuf.append(receivedByte)
-                self.rxObj.currIndex += 1
+                if queue.STM32MCP_headPtr is not None:
+                    #Check if the received byte is a valid starting byte
+                    if ((receivedByte == 0xFF) or (receivedByte == 0xF0)):
+                        self.rxObj.rxMsgBuf.append(receivedByte)
+                        self.rxObj.currIndex += 1
             #What's the length of Payload?
             elif(self.rxObj.currIndex == 0x01):
                 self.rxObj.rxMsgBuf.append(receivedByte)
@@ -202,8 +206,24 @@ class STM32MCP_FlowControlManager():
 
             if(self.rxObj.currIndex == self.rxObj.payloadlength + 0x03):
                 if(PayLoadHandler.checkSum(self.rxObj.rxMsgBuf, self.rxObj.payloadlength + 2) == receivedByte):
-                    #print("Received Message: ", [hex(b) for b in self.rxObj.rxMsgBuf])
-                    motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
+                    if self.rxObj.rxMsgBuf[0] == 0xF0:
+                        motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
+                        #Come to the next transmission
+                        # As long as the server receives Acknowledgement from the client with valid message, the queuing message is dequeued 
+                        # and the next message is sent
+                        queue.STM32MCP_dequeueMsg()
+                        if queue.STM32MCP_queueIsEmpty() == 0x00:
+                            if(queue.STM32MCP_headPtr is not None):
+                                uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
+                            retransmissionCount = 0x00  # Reset retransmission count after successful transmission
+                    elif self.rxObj.rxMsgBuf[0] == 0xFF:
+                        motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
+                        # ERROR HANDLING --> EXCEPTION HANDLING
+                        queue.STM32MCP_dequeueMsg()
+                        if queue.STM32MCP_queueIsEmpty() == 0x00:
+                            if(queue.STM32MCP_headPtr is not None):
+                                uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
+                            retransmissionCount = 0x00
                     self.rxObj.rxMsgBuf.clear()  # Clear the buffer after processing
                     self.STM32MCP_resetFlowControlHandler()
                 else:
@@ -225,7 +245,7 @@ class STM32MCP_FlowControlManager():
 def ECU_OBD_Protocol_Init():
     global flowControl
     #Initialize the Queue
-    flowControl = STM32MCP_FlowControlManager()
+    flowControl = STM32MCP_FlowControlHandler()
     return flowControl
 
 def ECU_Protocol_Retransmission():
@@ -332,4 +352,6 @@ def Test_Datagram(behaviorID: int) -> bytearray:
 def TEST_DATA(byteID: int) -> bytearray:
     txFrame = bytearray(1)
     txFrame[0] = byteID
+    length = len(txFrame)
+    queue.STM32MCP_enqueueMsg(txFrame, length)
     uartPtr.uartWrite(txFrame)

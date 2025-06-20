@@ -21,7 +21,7 @@ flowControl = None
 #We will use the flow control handler from STM32MCP_CTL.py
 def protocolControlInit():
     global flowControl
-    flowControl = STM32MCP_CTL.STM32MCP_FlowControlManager()
+    flowControl = STM32MCP_CTL.STM32MCP_FlowControlHandler()
 
 # @Class UART
 # @brief     It defines a set of member unctions that the server
