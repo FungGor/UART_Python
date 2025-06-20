@@ -1,6 +1,6 @@
 # motor_control.py processes the incoming messages from the ECU
-import STM32MCP_CTL
 import STM32MCP_Lib
+import ECU_Data
 
 def motorcontrol_processGetRegisterFrameMsg(txPayload: bytearray, txPayloadLength, rxPayload: bytearray, rxPayloadLength):
     regID = txPayload[0]
@@ -80,6 +80,9 @@ def motorcontrol_rxMsgCB(rxMsg: bytearray, STM32MCP_txMsgNode):
             pass
     del rxPayload
     del txPayload
+
+def motorcontrol_exceptionHandler():
+    print("Data Package is corrupted")
 
 def motorcontrol_errorHandler(errorCode):
     match errorCode:

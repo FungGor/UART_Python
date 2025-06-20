@@ -20,6 +20,7 @@ class STM32MCP_CommunicationProtocol:
         # @param    None
         # @return   None
         def STM32MCP_startCommunication():
+            global communicationState
             if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE:
                 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE
 
@@ -28,6 +29,7 @@ class STM32MCP_CommunicationProtocol:
         # @param    None
         # @return   None
         def STM32MCP_closeCommunication():
+            global communicationState
             if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
                 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
                 queue.STM32MCP_emptyQueue()
@@ -217,7 +219,7 @@ class STM32MCP_FlowControlHandler():
                                 uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
                             retransmissionCount = 0x00  # Reset retransmission count after successful transmission
                     elif self.rxObj.rxMsgBuf[0] == 0xFF:
-                        motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
+                        motor_control.motorcontrol_exceptionHandler()
                         # ERROR HANDLING --> EXCEPTION HANDLING
                         queue.STM32MCP_dequeueMsg()
                         if queue.STM32MCP_queueIsEmpty() == 0x00:
@@ -265,21 +267,20 @@ def ECU_Protocol_Retransmission():
 def STM32MCP_controlEscooterBehavior(behaviorID : int):
     global queue
     if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
-        length = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH+3
-        txFrame = bytearray(length)
-        txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.ESCOOTER_BEHAVIOR_ID)
-        txFrame[1] = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH
-        txFrame[2] = behaviorID
-        txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
-
-        #Enqueue the message to the txMsg queue
-        if queue.STM32MCP_queueIsEmpty() == 0x01:
-            #timerManager.STM32MCP_startTimer()
-            queue.STM32MCP_enqueueMsg(txFrame, length)
-            uartPtr.uartWrite(txFrame)
-            #uartManager.STM32MCP_uartSendMsg(txFrame, length)
-        else:
-            queue.STM32MCP_enqueueMsg(txFrame, length)
+            length = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH+3
+            txFrame = bytearray(length)
+            txFrame[0] = (STM32MCP_Lib.STM32MCP_MOTOR_ID.STM32MCP_MOTOR_1_ID) | (STM32MCP_Lib.ESCOOTER_BEHAVIOR_ID)
+            txFrame[1] = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH
+            txFrame[2] = behaviorID
+            txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
+            #Enqueue the message to the txMsg queue
+            if queue.STM32MCP_queueIsEmpty() == 0x01:
+                #timerManager.STM32MCP_startTimer()
+                queue.STM32MCP_enqueueMsg(txFrame, length)
+                uartPtr.uartWrite(txFrame)
+                #uartManager.STM32MCP_uartSendMsg(txFrame, length)
+            else:
+                queue.STM32MCP_enqueueMsg(txFrame, length)
 
 
 # @fn      STM32MCP_setDynamicCurrent

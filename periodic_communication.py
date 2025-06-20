@@ -7,28 +7,18 @@ import time
 import STM32MCP_CTL
 import STM32MCP_Lib
 
-TIMER_INTERVAL = 0.5 # Interval in seconds for periodic communication
+TIMER_INTERVAL = 0.2 # Interval in seconds for periodic communication
 def periodic_communication(serial):
     counter = 0
     while True:
-       if counter%2 == 0:
-          #datagram1 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
-          #print("Test Datagram 1: ", [hex(b) for b in datagram1])
-          STM32MCP_CTL.TEST_DATA(0x01)
-       elif counter % 3 == 0:
-          STM32MCP_CTL.TEST_DATA(0x03)       
-       else:
-          #datagram2 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_2)
-          #print("Test Datagram 1: ", [hex(b) for b in datagram2])
-          STM32MCP_CTL.TEST_DATA(0x02)     
-          pass   
-       counter += 1
-       time.sleep(TIMER_INTERVAL)  # Simulate some processing time
-     # Here you would implement the actual communication logic
-     # For example, sending a request to the STM32 motor controller
-     # and processing the response.
-     # This is a placeholder for the actual communication logic.
-     # Simulate communication delay
+         # Here you would implement the actual communication logic
+         # For example, sending a request to the STM32 motor controller
+         # and processing the response.
+         # This is a placeholder for the actual communication logic.
+         # Simulate communication delay
+         STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_BATTERY_VOLTAGE)
+         STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_BATTERY_CURRENT)
+         time.sleep(TIMER_INTERVAL)  # Simulate some processing time
 
 def run_periodic_communication(serial):
    timer_thread = threading.Thread(target=periodic_communication,args=(serial,), daemon=True)

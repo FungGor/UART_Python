@@ -24,6 +24,8 @@ uart_protocol.runRxInterrupt(ser, uartObj)
 #Sends datagram periodically
 periodic_communication.run_periodic_communication(uartObj)
 
+STM32MCP_CTL.STM32MCP_CommunicationProtocol.STM32MCP_startCommunication()
+
 #Equivalent to RTOS Start
 try:
    # Keep the main thread alive, but allow for graceful exit with Ctrl+C
