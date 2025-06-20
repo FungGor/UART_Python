@@ -14,7 +14,9 @@ def periodic_communication(serial):
        if counter%2 == 0:
           #datagram1 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_1)
           #print("Test Datagram 1: ", [hex(b) for b in datagram1])
-          STM32MCP_CTL.TEST_DATA(0x01)       
+          STM32MCP_CTL.TEST_DATA(0x01)
+       elif counter % 3 == 0:
+          STM32MCP_CTL.TEST_DATA(0x03)       
        else:
           #datagram2 = STM32MCP_CTL.Test_Datagram(STM32MCP_Lib.TEST_CASE_2)
           #print("Test Datagram 1: ", [hex(b) for b in datagram2])

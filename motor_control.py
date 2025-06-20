@@ -81,6 +81,29 @@ def motorcontrol_rxMsgCB(rxMsg: bytearray, STM32MCP_txMsgNode):
     del rxPayload
     del txPayload
 
+def motorcontrol_errorHandler(errorCode):
+    match errorCode:
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_BAD_FRAME_ID:
+            print("STM32MCP Error: Bad Frame ID received.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_WRITE_ON_READ_ONLY:
+            print("STM32MCP Error: Write on Read-Only Register.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_READ_NOT_ALLOWED:
+            print("STM32MCP Error: Read Not Allowed on this Register.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_BAD_TARGET_DRIVE:
+            print("STM32MCP Error: Bad Target Drive.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_OUT_OF_RANGE:
+            print("STM32MCP Error: Value Out of Range.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_BAD_COMMAND_ID:
+            print("STM32MCP Error: Bad Command ID.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_OVERRUN_ERROR:
+            print("STM32MCP Error: Overrun Error.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_TIMEOUT_ERROR:
+            print("STM32MCP Error: Timeout Error.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_BAD_CRC:
+            print("STM32MCP Error: Bad CRC.")
+        case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_BAD_TARGET_DRIVE:
+            print("STM32MCP Error: Bad Target Drive.")
+    
 def motorcontrol_showReceivedMessage(rxMsg: bytearray):
     for i in range(len(rxMsg)):
         print(f"Byte {i}: {hex(rxMsg[i])}")
