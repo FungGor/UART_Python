@@ -109,4 +109,5 @@ def motorcontrol_errorHandler(errorCode):
     
 def motorcontrol_showReceivedMessage(rxMsg: bytearray):
     for i in range(len(rxMsg)):
-        print(f"Byte {i}: {hex(rxMsg[i])}")
+        print(" ".join(f"{hex(b)}" for b in rxMsg))
+        print("\n")

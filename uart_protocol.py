@@ -6,7 +6,6 @@
 # Ensure the Libraies' functionalities, then implement Logging Library
 
 #Low Level Peripheral which access Hardware Level Layer
-from base64 import encode
 import serial
 import serial.serialutil
 import serial.tools.list_ports
@@ -22,6 +21,8 @@ flowControl = None
 def protocolControlInit():
     global flowControl
     flowControl = STM32MCP_CTL.STM32MCP_FlowControlHandler()
+    STM32MCP_CTL.ECU_OBD_Protocol_Register(flowControl)
+
 
 # @Class UART
 # @brief     It defines a set of member unctions that the server

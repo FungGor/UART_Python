@@ -1,10 +1,8 @@
 #The script tests for UART's functionalities
 import periodic_communication
-import threading
 import STM32MCP_CTL
-import STM32MCP_Lib
 import uart_protocol
-import time
+import retransmissionHandler
 
 #Queue and Periodic Communication
 STM32MCP_CTL.MsgQueueInit()  # Initialize the message queue
@@ -24,7 +22,11 @@ uart_protocol.runRxInterrupt(ser, uartObj)
 #Sends datagram periodically
 periodic_communication.run_periodic_communication(uartObj)
 
+#Start Protocol Communication
 STM32MCP_CTL.STM32MCP_CommunicationProtocol.STM32MCP_startCommunication()
+
+#Test Retransmission Handler
+retransmissionHandler.start_retransmission_thread()
 
 #Equivalent to RTOS Start
 try:

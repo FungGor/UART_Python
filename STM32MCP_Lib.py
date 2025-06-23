@@ -14,7 +14,7 @@ STM32_NUMBER_OF_REGISTERS  = 0x0A
 STM32MCP_NUMBER_OF_MOTORS  = 0x01
 
 #The maximum number of node that the buffer can hold
-STM32MCP_MAXIMUM_NUMBER_OF_NODE  = 0x1E
+STM32MCP_MAXIMUM_NUMBER_OF_NODE  = 0x1F
 #The maximum number of retransmission is allowed
 STM32MCP_MAXIMUM_RETRANSMISSION_ALLOWANCE = 0x0A
 #Maximum rx buffer length

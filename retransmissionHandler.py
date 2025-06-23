@@ -1,6 +1,5 @@
 import threading
 import time
-import signals
 import STM32MCP_CTL
 
 RETRANSMISSION_INTERVAL = 0.5  # Interval in seconds for retransmission, 500 ms
@@ -11,7 +10,8 @@ def retransmission_handler():
         # For example, checking if there are messages in the queue that need to be retransmitted.
         # This is a placeholder for the actual retransmission logic.
         # Simulate retransmission delay
-        STM32MCP_CTL.ECU_Protocol_Retransmission()
+        # Call the retransmission function from STM32MCP_CTL
+        STM32MCP_CTL.ECU_RetransmitHandling()
         time.sleep(RETRANSMISSION_INTERVAL)
 
 def start_retransmission_thread():
@@ -21,6 +21,5 @@ def start_retransmission_thread():
     retransmission_thread.start()
 
 def stop_retransmission_thread():
-    global running, retransmission_thread
+    global running
     running = False
-    retransmission_thread.join()
