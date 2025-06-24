@@ -226,8 +226,8 @@ class STM32MCP_FlowControlHandler():
                 if(PayLoadHandler.checkSum(self.rxObj.rxMsgBuf, self.rxObj.payloadlength + 2) == receivedByte):
                     if self.rxObj.rxMsgBuf[0] == 0xF0:
                         timeoutHandler.timeOutPause()
-                        #motor_control.motorcontrol_rxMsgCB(self.rxObj.rxMsgBuf, queue.STM32MCP_headPtr)
-                        motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
+                        motor_control.motorcontrol_rxMsgCB(self.rxObj.rxMsgBuf, queue.STM32MCP_headPtr)
+                        #motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
                         #Come to the next transmission
                         # As long as the server receives Acknowledgement from the client with valid message, the queuing message is dequeued 
                         # and the next message is sent
@@ -272,8 +272,8 @@ def ECU_RetransmitHandling():
     global  retransmissionCount
     if (queue.STM32MCP_headPtr is not None):
         #You could print the msg out
-        uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
-        flowControl.flowControlClearBuffer()
+        #uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
+        #flowControl.flowControlClearBuffer()
         retransmissionCount += 1               
         print("\n")
         print("Retransmission Count: ", retransmissionCount)

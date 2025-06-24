@@ -16,7 +16,7 @@ class TimeOutThread(threading.Thread):
         while execute:
             i += 1
             self._timeout_event.wait()  # Block the thread if paused
-            print(f"Running... {i}")
+            #print(f"Running... {i}")
             STM32MCP_CTL.ECU_RetransmitHandling()
             time.sleep(0.5)  # Simulating work
 
@@ -37,5 +37,5 @@ def timeOutPause():
     timeout_thread.pause()
 
 def timeOutResume():
-    print("Resuming thread...")
+    #print("Resuming thread...")
     timeout_thread.resume()
