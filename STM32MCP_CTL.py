@@ -1,6 +1,5 @@
 #This library implements the functions for controllling the STM32 Motor Driver (Applicable for F1xxx and F4xxx Series) 
 import STM32MCP_Lib
-import retransmissionHandler
 import timeoutHandler
 import motor_control
 
@@ -41,7 +40,7 @@ class STM32MCP_CommunicationProtocol:
             if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
                 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
                 queue.STM32MCP_emptyQueue()
-                retransmissionHandler.stop_retransmission_thread()
+                timeoutHandler.timeOutPause()  # Pause the timeout handler
 
 class STM32MCP_FIFO_Queue:
         # @fn      STM32MCP Queue Initialization
