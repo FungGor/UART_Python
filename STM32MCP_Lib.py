@@ -43,12 +43,6 @@ STM32MCP_SET_DYNAMIC_TORQUE_FRAME_ID             = 0x14
 ON_BOARD_DIAGNOSIS_PAYLOAD_LENGTH      = 0x01
 ON_BOARD_DIAGNOSIS_MODE_FRAME_ID       = 0x15
 
-#Just for testing purpose
-STM32MCP_TEST_DATAGRAM_PAYLOAD_LENGTH = 0x01
-STM32MCP_TEST_DATAGRAM_FRAME_ID       = 0x16
-TEST_CASE_1                           = 0x01
-TEST_CASE_2                           = 0x02
-TEST_CASE_3                           = 0x03
 
 #Select Suitable Motor ID
 # @brief     It defines the motor ID of the STM32 motor control protocol
