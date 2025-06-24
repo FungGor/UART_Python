@@ -8,7 +8,7 @@ import STM32MCP_CTL
 import STM32MCP_Lib
 
 
-TIMER_INTERVAL = 1 # Interval in seconds for periodic communication
+TIMER_INTERVAL = 2 # Interval in seconds for periodic communication
 def periodic_communication(serial):
     while True:
          # Here you would implement the actual communication logic
@@ -18,6 +18,7 @@ def periodic_communication(serial):
          # Simulate communication delay
          STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_BATTERY_VOLTAGE)
          STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_BATTERY_CURRENT)
+         STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_MOTOR_TEMPERATURE)
          time.sleep(TIMER_INTERVAL)  # Simulate some processing time
 
 def run_periodic_communication(serial):
