@@ -1,6 +1,6 @@
 #This library implements the functions for controllling the STM32 Motor Driver (Applicable for F1xxx and F4xxx Series) 
 import STM32MCP_Lib
-import timeoutHandler
+import periodic_communication
 import motor_control
 
 retransmitState = True
@@ -40,7 +40,7 @@ class STM32MCP_CommunicationProtocol:
             if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
                 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
                 queue.STM32MCP_emptyQueue()
-                timeoutHandler.timeOutPause()  # Pause the timeout handler
+                
 
 class STM32MCP_FIFO_Queue:
         # @fn      STM32MCP Queue Initialization
@@ -202,41 +202,44 @@ class STM32MCP_FlowControlHandler():
             if(self.rxObj.currIndex == 0x00):
                 if queue.STM32MCP_headPtr is not None:
                     #Reset the timer counter
-                    timeoutHandler.timeOutPause()
-                    timeoutHandler.timeOutResume()
+                    #timeoutHandler.timeOutPause()
+                    #timeoutHandler.timeOutResume()
                     #Check if the received byte is a valid starting byte
                     if ((receivedByte == 0xFF) or (receivedByte == 0xF0)):
                         self.rxObj.rxMsgBuf.append(receivedByte)
                         self.rxObj.currIndex += 1
             #What's the length of Payload?
             elif(self.rxObj.currIndex == 0x01):
-                timeoutHandler.timeOutPause()  # Pause the timeout handler
-                timeoutHandler.timeOutResume()  # Resume the timeout handler
+                #timeoutHandler.timeOutPause()  # Pause the timeout handler
+                #timeoutHandler.timeOutResume()  # Resume the timeout handler
                 self.rxObj.rxMsgBuf.append(receivedByte)
                 self.rxObj.payloadlength = self.rxObj.rxMsgBuf[self.rxObj.currIndex]
                 self.rxObj.currIndex += 1
             #Data Frame Processing
             elif(self.rxObj.currIndex < self.rxObj.payloadlength + 0x03):
-                timeoutHandler.timeOutPause()  # Pause the timeout handler
-                timeoutHandler.timeOutResume()
+                #timeoutHandler.timeOutPause()  # Pause the timeout handler
+                #timeoutHandler.timeOutResume()
                 self.rxObj.rxMsgBuf.append(receivedByte)
                 self.rxObj.currIndex += 1
 
             if(self.rxObj.currIndex == self.rxObj.payloadlength + 0x03):
                 if(PayLoadHandler.checkSum(self.rxObj.rxMsgBuf, self.rxObj.payloadlength + 2) == receivedByte):
                     if self.rxObj.rxMsgBuf[0] == 0xF0:
-                        timeoutHandler.timeOutPause()
+                        #timeoutHandler.timeOutPause()
+                        periodic_communication.TRANSMIT = True
                         motor_control.motorcontrol_rxMsgCB(self.rxObj.rxMsgBuf, queue.STM32MCP_headPtr)
                         #motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
                         #Come to the next transmission
                         # As long as the server receives Acknowledgement from the client with valid message, the queuing message is dequeued 
                         # and the next message is sent
                         queue.STM32MCP_dequeueMsg()
+                        retransmissionCount = 0X00
                         if queue.STM32MCP_queueIsEmpty() == 0x00:                  
                             if(queue.STM32MCP_headPtr is not None):
-                                timeoutHandler.timeOutResume()
+                                #timeoutHandler.timeOutResume()
                                 uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
                             retransmissionCount = 0x00  # Reset retransmission count after successful transmission
+                            
                     elif self.rxObj.rxMsgBuf[0] == 0xFF:
                         motor_control.motorcontrol_exceptionHandler()
                         # ERROR HANDLING --> EXCEPTION HANDLING
@@ -269,16 +272,15 @@ class STM32MCP_FlowControlHandler():
                 break
 
 def ECU_RetransmitHandling():
-    global  retransmissionCount
-    if (queue.STM32MCP_headPtr is not None):
-        #You could print the msg out
-        #uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
-        #flowControl.flowControlClearBuffer()
-        retransmissionCount += 1               
-        print("\n")
-        print("Retransmission Count: ", retransmissionCount)
-        if(retransmissionCount > STM32MCP_Lib.STM32MCP_MAXIMUM_RETRANSMISSION_ALLOWANCE):
-            STM32MCP_CommunicationProtocol.STM32MCP_closeCommunication()
+    global  retransmissionCount,queue
+    if queue.STM32MCP_queueIsEmpty() == 0x00:
+            uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
+            flowControl.STM32MCP_resetFlowControlHandler()  # Reset the flow control handler   
+            retransmissionCount += 1       
+            print("\n")
+            print("Retransmission Count: ", retransmissionCount)
+            if(retransmissionCount > STM32MCP_Lib.STM32MCP_MAXIMUM_RETRANSMISSION_ALLOWANCE):
+                STM32MCP_CommunicationProtocol.STM32MCP_closeCommunication()
 
 def resetRetransmissionCount():
     global retransmissionCount
@@ -299,7 +301,7 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
             txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
             #Enqueue the message to the txMsg queue
             if queue.STM32MCP_queueIsEmpty() == 0x01:
-                timeoutHandler.timeOutResume()  # Resume the timeout handler
+                periodic_communication.TRANSMIT = False  # Stop the periodic transmission
                 queue.STM32MCP_enqueueMsg(txFrame, length)
                 uartPtr.uartWrite(txFrame)
                 #uartManager.STM32MCP_uartSendMsg(txFrame, length)

@@ -2,7 +2,6 @@
 import periodic_communication
 import STM32MCP_CTL
 import uart_protocol
-import timeoutHandler
 
 #Queue and Periodic Communication
 STM32MCP_CTL.MsgQueueInit()  # Initialize the message queue
@@ -27,7 +26,7 @@ STM32MCP_CTL.STM32MCP_CommunicationProtocol.STM32MCP_startCommunication()
 
 #Test Retransmission Handler
 #retransmissionHandler.start_retransmission_thread()
-timeoutHandler.timeOutStart()
+#timeoutHandler.timeOutStart()
 
 #Equivalent to RTOS Start
 try:
