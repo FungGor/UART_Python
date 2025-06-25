@@ -3,7 +3,6 @@ import STM32MCP_Lib
 import periodic_communication
 import motor_control
 
-retransmitState = True
 retransmissionCount = 0x00
 communicationState = STM32MCP_Lib.STM32MCP_COMMUNICATION_DEACTIVE
 queue = None # Global variable to hold the queue instance
@@ -202,41 +201,34 @@ class STM32MCP_FlowControlHandler():
             if(self.rxObj.currIndex == 0x00):
                 if queue.STM32MCP_headPtr is not None:
                     #Reset the timer counter
-                    #timeoutHandler.timeOutPause()
-                    #timeoutHandler.timeOutResume()
                     #Check if the received byte is a valid starting byte
                     if ((receivedByte == 0xFF) or (receivedByte == 0xF0)):
                         self.rxObj.rxMsgBuf.append(receivedByte)
                         self.rxObj.currIndex += 1
             #What's the length of Payload?
             elif(self.rxObj.currIndex == 0x01):
-                #timeoutHandler.timeOutPause()  # Pause the timeout handler
-                #timeoutHandler.timeOutResume()  # Resume the timeout handler
                 self.rxObj.rxMsgBuf.append(receivedByte)
                 self.rxObj.payloadlength = self.rxObj.rxMsgBuf[self.rxObj.currIndex]
                 self.rxObj.currIndex += 1
             #Data Frame Processing
             elif(self.rxObj.currIndex < self.rxObj.payloadlength + 0x03):
-                #timeoutHandler.timeOutPause()  # Pause the timeout handler
-                #timeoutHandler.timeOutResume()
                 self.rxObj.rxMsgBuf.append(receivedByte)
                 self.rxObj.currIndex += 1
 
             if(self.rxObj.currIndex == self.rxObj.payloadlength + 0x03):
                 if(PayLoadHandler.checkSum(self.rxObj.rxMsgBuf, self.rxObj.payloadlength + 2) == receivedByte):
                     if self.rxObj.rxMsgBuf[0] == 0xF0:
-                        #timeoutHandler.timeOutPause()
-                        periodic_communication.TRANSMIT = True
+                        periodic_communication.stop_protocol_event_handler()  # Stop the periodic communication thread
                         motor_control.motorcontrol_rxMsgCB(self.rxObj.rxMsgBuf, queue.STM32MCP_headPtr)
                         #motor_control.motorcontrol_showReceivedMessage(self.rxObj.rxMsgBuf)
                         #Come to the next transmission
                         # As long as the server receives Acknowledgement from the client with valid message, the queuing message is dequeued 
                         # and the next message is sent
                         queue.STM32MCP_dequeueMsg()
-                        retransmissionCount = 0X00
                         if queue.STM32MCP_queueIsEmpty() == 0x00:                  
                             if(queue.STM32MCP_headPtr is not None):
                                 #timeoutHandler.timeOutResume()
+                                periodic_communication.resume_protocol_event_handler()
                                 uartPtr.uartWrite(queue.STM32MCP_headPtr.txMsg)
                             retransmissionCount = 0x00  # Reset retransmission count after successful transmission
                             
@@ -291,7 +283,7 @@ def resetRetransmissionCount():
 # @param   behaviorID  The ID of the behavior to be controlled
 # @return  None
 def STM32MCP_controlEscooterBehavior(behaviorID : int):
-    global queue, retransmitState
+    global queue
     if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
             length = STM32MCP_Lib.ESCOOTER_BEHAVIOUR_PAYLOAD_LENGTH+3
             txFrame = bytearray(length)
@@ -301,10 +293,8 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
             txFrame[3] = PayLoadHandler.checkSum(txFrame, length-1)
             #Enqueue the message to the txMsg queue
             if queue.STM32MCP_queueIsEmpty() == 0x01:
-                periodic_communication.TRANSMIT = False  # Stop the periodic transmission
                 queue.STM32MCP_enqueueMsg(txFrame, length)
                 uartPtr.uartWrite(txFrame)
-                #uartManager.STM32MCP_uartSendMsg(txFrame, length)
             else:
                 queue.STM32MCP_enqueueMsg(txFrame, length)
 
@@ -315,7 +305,7 @@ def STM32MCP_controlEscooterBehavior(behaviorID : int):
 #          IQValue:          instant Current (s16A)
 # @return  None
 def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
-    global queue, retransmitState
+    global queue
     if communicationState == STM32MCP_Lib.STM32MCP_COMMUNICATION_ACTIVE:
         length = STM32MCP_Lib.STM32MCP_SET_DYNAMIC_TORQUE_FRAME_PAYLOAD_LENGTH + 3
         txFrame = bytearray(length)
@@ -334,7 +324,6 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
         if queue.STM32MCP_queueIsEmpty() == 0x01:
             queue.STM32MCP_enqueueMsg(txFrame, length)
             uartPtr.uartWrite(txFrame)
-            #uartManager.STM32MCP_uartSendMsg(txFrame, length)
         else:
             queue.STM32MCP_enqueueMsg(txFrame, length)
 
@@ -343,7 +332,7 @@ def STM32MCP_setDynamicCurrent(throttlePercent: int, IQValue: int):
 # @param   behaviorID  The ID of the behavior to be controlled
 # @return  None
 def ON_BOARD_DIAGNOSIS_BEHAVIOUR(behaviorID : int):
-    global queue,retransmitState
+    global queue
     if communicationState == queue.STM32MCP_COMMUNICATION_ACTIVE:
         length = STM32MCP_Lib.ON_BOARD_DIAGNOSIS_PAYLOAD_LENGTH + 3
         txFrame = bytearray(length)
