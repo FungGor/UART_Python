@@ -19,8 +19,7 @@ ser = uartObj.take_serial_obj()
 uart_protocol.runRxInterrupt(ser, uartObj)
 
 #Sends datagram periodically
-#periodic_communication.run_periodic_communication(uartObj)
-periodic_communication.run_protocol_event_handler()
+periodic_communication.run_periodic_communication()
 
 #Start Protocol Communication
 STM32MCP_CTL.STM32MCP_CommunicationProtocol.STM32MCP_startCommunication()

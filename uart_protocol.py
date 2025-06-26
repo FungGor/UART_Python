@@ -39,7 +39,7 @@ def protocolControlInit():
 # WORD Length = 8-BIT
 # STOP BITS   = STOPBITS_1
 # PARITY      = UART_PARITY_NONE
-
+uartPtr = None
 class UART_Protocol():
      def __init__(self, portID, baudrate, parity, stopbits, bytesize, timeout, protocol, status_connect):
         self.portID = portID
@@ -64,7 +64,7 @@ class UART_Protocol():
      def uartInit(self) -> bool:
          print("Attempting to initialize Serial Protocol.....")
          try:
-               self.protocol = serial.Serial()                            
+               self.protocol = serial.Serial(write_timeout=0.1)                            
                self.status_connect = 1
                time.sleep(0.3)
                return True
@@ -188,6 +188,7 @@ class UART_Protocol():
          return self.protocol
 
 def UART_Init():
+    global uartPtr
     UART_PARAM = {
      "PORT": "COM4",
      "BAUD_RATE": 115200,
@@ -211,6 +212,10 @@ def UART_Init():
     )
     STM32MCP_CTL.STM32MCP_ptrUART_register(uartPtr)
     return uartPtr
+
+def sendData(data: bytearray):
+    global uartPtr
+    uartPtr.uartWrite(data)
 
 InputFinished = 0
 Command = 0

@@ -44,11 +44,6 @@ def motorcontrol_processGetMotorBehaviorFrameMsg(txPayload: bytearray,txPayloadL
     elif (regID == STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_BATTERY_VOLTAGE):
         pass
 
-#Message Receive Handler --> Handles the incoming message from ECU
-def motorcontrol_rxMsgCB(rxMsg: bytearray, STM32MCP_txMsgNode):
-    frameID = STM32MCP_txMsgNode.txMsg[0] & 0x1F
-    print(frameID)
-
 def motorcontrol_exceptionHandler():
     print("Data Package is corrupted")
 
@@ -75,7 +70,13 @@ def motorcontrol_errorHandler(errorCode):
         case STM32MCP_Lib.STM32MCP_ERROR_CODE.STM32MCP_BAD_TARGET_DRIVE:
             print("STM32MCP Error: Bad Target Drive.")
     
-def motorcontrol_showReceivedMessage(rxMsg: bytearray):
-    for i in range(len(rxMsg)):
-        print(" ".join(f"{hex(b)}" for b in rxMsg))
-        print("\n")
+def motorcontrol_showReceivedMessage(rxMsg: bytearray, frameID, rxPayloadLength, rxPayload, txPayloadLength, txPayload):
+    print(f"Received Message with Frame ID: {frameID}")
+    #for i in range(len(rxPayload)):
+    print(f"RxPayload is: {' '.join(f'{hex(b)}' for b in rxPayload)}")
+        #print("\n")
+    print(f"Rx Payload Length: {rxPayloadLength}")
+    #for i in range(len(txPayload)):
+    print(f"TxPayload is: {' '.join(f'{hex(b)}' for b in txPayload)}")
+    print(f"Tx Payload Length: {txPayloadLength}")
+    print("\n")
