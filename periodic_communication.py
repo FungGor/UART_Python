@@ -7,9 +7,11 @@ import time
 import STM32MCP_CTL
 import STM32MCP_Lib   
 
-TIMER_INTERVAL = 0.2 # Interval in seconds for periodic communication
+TIMER_INTERVAL = 0.02 # Interval in seconds for periodic communication
 TICK = 0
 LossCount = 0
+retransmit = True
+
 def periodic_communication():
     global TICK, LossCount
     while True:
@@ -18,9 +20,10 @@ def periodic_communication():
         STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_MOTOR_TEMPERATURE)
         STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_MOTOR_DRIVER_TEMP)
         STM32MCP_CTL.STM32MCP_controlEscooterBehavior(STM32MCP_Lib.ESCOOTER_BEHAVIOURS.ESCOOTER_TIMEOUT_CHECKING)
-        if TICK%5 == 0:
+        if TICK%25 == 0 and retransmit:
             LossCount += 1
             print(f"Loss Count: {LossCount}")
+            STM32MCP_CTL.retransmissionHandler()
         TICK+=1
         time.sleep(TIMER_INTERVAL)  # Simulate some processing time
 
@@ -31,3 +34,11 @@ def run_periodic_communication():
 def lossReset():
     global LossCount
     LossCount = 0
+
+def stopRetransmit():
+    global retransmit
+    retransmit = False
+
+def startRetransmit():
+    global retransmit
+    retransmit = True

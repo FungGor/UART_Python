@@ -64,7 +64,7 @@ class UART_Protocol():
      def uartInit(self) -> bool:
          print("Attempting to initialize Serial Protocol.....")
          try:
-               self.protocol = serial.Serial(write_timeout=0.1)                            
+               self.protocol = serial.Serial()                            
                self.status_connect = 1
                time.sleep(0.3)
                return True
